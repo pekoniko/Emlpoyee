@@ -6,14 +6,7 @@ import com.example.employee.entities.Salary;
 import com.example.employee.entities.SalaryHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
 import com.example.employee.repositories.EmpRep;
 import com.example.employee.repositories.SalHistRep;
 import com.example.employee.repositories.SalRep;
@@ -45,7 +38,7 @@ public class Controller {
         return new JsonReturn(employee, "Data on employee not full", true);
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public JsonReturn getAll() {
         List<Employee> all = empRep.findAll();
         if (all.isEmpty())
@@ -61,8 +54,9 @@ public class Controller {
         return new JsonReturn(Arrays.asList(employee.get()), "", true);
     }
 
-    @GetMapping("/{firsts_name}/{last_name}")
-    public JsonReturn getEmployeeById(@PathVariable String firsts_name, @PathVariable String last_name) {
+    @GetMapping("/")
+    public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firsts_name,
+                                         @RequestParam(name = "lastName") String last_name) {
         List<Employee> employee = empRep.findByFirstNameAndLastName(firsts_name, last_name);
         if (employee.isEmpty())
             return new JsonReturn(employee, "No employee with that name and last name", false);
@@ -90,7 +84,7 @@ public class Controller {
         return new JsonReturn(null, "Salary not found on selected date", false);
     }
 
-    @GetMapping("/{id}/amount")
+    @GetMapping("/{id}/salary")
     public JsonReturn getSalary(@PathVariable Long id) {
         if (empRep.findById(id).isEmpty())
             return new JsonReturn(null, "No employee with that ID", false);
@@ -114,15 +108,21 @@ public class Controller {
         return new JsonReturn(existingEmployee, "", true);
     }
 
-    @PutMapping("/{id}/amount={amount}")
-    public JsonReturn updateAmount(@PathVariable Long id, @PathVariable BigDecimal amount) {
+    @PutMapping("/{id}/salary")
+    public JsonReturn updateAmount(@PathVariable Long id, @RequestBody Salary newSalary) {
+        if (empRep.findById(id).isEmpty())
+            return new JsonReturn(null, "Have no employee with this id", false);
         Salary existingSalary = salRep.findByEmployee_Id(id);
-        if (existingSalary != null && existingSalary.getAmount() == amount)
-            return new JsonReturn(null, amount + " value is already set as amount!", false);
-        if (existingSalary == null) //if salary already set up delete old
-            existingSalary = new Salary(empRep.findById(id).get(), amount, new Date());
-        existingSalary.setAmount(amount);
-        existingSalary.setStartDate(new Date());
+        if (newSalary.getAmount() == null)
+            return new JsonReturn(null, "No amount in salary specified ", false);
+        if (existingSalary != null && newSalary.getAmount().equals(existingSalary.getAmount()))
+            return new JsonReturn(null, newSalary.getAmount() + " is already set as amount!", false);
+        if (newSalary.getStartDate() == null)
+            newSalary.setStartDate(new Date());
+        if (existingSalary == null) //if salary already set up replace old
+            existingSalary = new Salary(empRep.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate());
+        existingSalary.setAmount(newSalary.getAmount());
+        existingSalary.setStartDate(newSalary.getStartDate());
         salRep.save(existingSalary);
         List<SalaryHistory> hist = salHistRep.findByEmployee_Id(id);
         if (!hist.isEmpty())
@@ -130,8 +130,8 @@ public class Controller {
                 if (histPoint.getEndDate() == null)
                     histPoint.setEndDate(new Date());
 
-        salHistRep.save(new SalaryHistory(empRep.findById(id).get(), amount, new Date(), null));
-        return new JsonReturn(amount, "", true);
+        salHistRep.save(new SalaryHistory(empRep.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate(), null));
+        return new JsonReturn(newSalary.getAmount(), "", true);
     }
 
 
