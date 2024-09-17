@@ -5,42 +5,40 @@ import com.example.employee.entities.JsonReturn;
 import com.example.employee.entities.Salary;
 import com.example.employee.entities.SalaryHistory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import com.example.employee.repositories.EmpRep;
-import com.example.employee.repositories.SalHistRep;
-import com.example.employee.repositories.SalRep;
+import com.example.employee.repositories.EmpRepository;
+import com.example.employee.repositories.SalHistRepository;
+import com.example.employee.repositories.SalRepository;
 
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
 @RequestMapping(value = "/employee")
-public class Controller {
+public class EmployeeController {
 
     @Autowired
-    private EmpRep empRep;
+    private EmpRepository empRepository;
 
     @Autowired
-    private SalRep salRep;
+    private SalRepository salRepository;
 
     @Autowired
-    private SalHistRep salHistRep;
+    private SalHistRepository salHistRepository;
 
     @PostMapping
     public JsonReturn createEmployee(@RequestBody Employee employee) {
         if (employee.getFirstName().isEmpty() || employee.getLastName().isEmpty() ||
                 employee.getPosition().isEmpty() || employee.getHireDate() == null)
             return new JsonReturn(null, "Data on employee not full", false);
-        empRep.save(employee);
+        empRepository.save(employee);
         return new JsonReturn(employee, "Data on employee not full", true);
     }
 
     @GetMapping
     public JsonReturn getAll() {
-        List<Employee> all = empRep.findAll();
+        List<Employee> all = empRepository.findAll();
         if (all.isEmpty())
             return new JsonReturn(all, "Employee list is empty", true);
         return new JsonReturn(all, "", true);
@@ -48,16 +46,16 @@ public class Controller {
 
     @GetMapping("/{id}")
     public JsonReturn getEmployeeById(@PathVariable Long id) {
-        Optional<Employee> employee = empRep.findById(id);
+        Optional<Employee> employee = empRepository.findById(id);
         if (employee.isEmpty())
             return new JsonReturn(employee, "No employee with that id", false);
         return new JsonReturn(Arrays.asList(employee.get()), "", true);
     }
 
     @GetMapping("/")
-    public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firsts_name,
-                                         @RequestParam(name = "lastName") String last_name) {
-        List<Employee> employee = empRep.findByFirstNameAndLastName(firsts_name, last_name);
+    public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firstsName,
+                                         @RequestParam(name = "lastName") String lastName) {
+        List<Employee> employee = empRepository.findByFirstNameAndLastName(firstsName, lastName);
         if (employee.isEmpty())
             return new JsonReturn(employee, "No employee with that name and last name", false);
         return new JsonReturn(employee, "", true);
@@ -65,7 +63,7 @@ public class Controller {
 
     @GetMapping("/{id}/date={dateString}")
     public JsonReturn getSalaryOnDate(@PathVariable Long id, @PathVariable String dateString) {
-        if (empRep.findById(id).isEmpty())
+        if (empRepository.findById(id).isEmpty())
             return new JsonReturn(null, "No employee with that ID", false);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         Date date = null;
@@ -74,7 +72,7 @@ public class Controller {
         } catch (ParseException e) {
             return new JsonReturn(null, "Wrong date format", false);
         }
-        List<SalaryHistory> allHistory = salHistRep.findByEmployee_Id(id);
+        List<SalaryHistory> allHistory = salHistRepository.findByEmployee_Id(id);
         allHistory.sort(Comparator.comparing(SalaryHistory::getId));
         if (date.before(allHistory.get(0).getStartDate())) // in case selected date before hiring
             return new JsonReturn(null, "Date is before first record", false);
@@ -86,9 +84,9 @@ public class Controller {
 
     @GetMapping("/{id}/salary")
     public JsonReturn getSalary(@PathVariable Long id) {
-        if (empRep.findById(id).isEmpty())
+        if (empRepository.findById(id).isEmpty())
             return new JsonReturn(null, "No employee with that ID", false);
-        Salary salary = salRep.findByEmployee_Id(id);
+        Salary salary = salRepository.findByEmployee_Id(id);
         if (salary == null) // in case selected date before hiring
             return new JsonReturn(null, "Salary still wasn't set for that employee", false);
         return new JsonReturn(salary.getAmount().toString(), "", true);
@@ -96,7 +94,7 @@ public class Controller {
 
     @PutMapping("/{id}")
     public JsonReturn updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
-        Employee existingEmployee = empRep.findById(id).get();
+        Employee existingEmployee = empRepository.findById(id).get();
         if (employee.getFirstName().isEmpty() || employee.getLastName().isEmpty() ||
                 employee.getPosition().isEmpty() || employee.getHireDate() == null)
             return new JsonReturn(null, "New data on employee not full", false);
@@ -104,15 +102,15 @@ public class Controller {
         existingEmployee.setLastName(employee.getLastName());
         existingEmployee.setPosition(employee.getPosition());
         existingEmployee.setHireDate(employee.getHireDate());
-        empRep.save(existingEmployee);
+        empRepository.save(existingEmployee);
         return new JsonReturn(existingEmployee, "", true);
     }
 
     @PutMapping("/{id}/salary")
     public JsonReturn updateAmount(@PathVariable Long id, @RequestBody Salary newSalary) {
-        if (empRep.findById(id).isEmpty())
+        if (empRepository.findById(id).isEmpty())
             return new JsonReturn(null, "Have no employee with this id", false);
-        Salary existingSalary = salRep.findByEmployee_Id(id);
+        Salary existingSalary = salRepository.findByEmployee_Id(id);
         if (newSalary.getAmount() == null)
             return new JsonReturn(null, "No amount in salary specified ", false);
         if (existingSalary != null && newSalary.getAmount().equals(existingSalary.getAmount()))
@@ -120,17 +118,17 @@ public class Controller {
         if (newSalary.getStartDate() == null)
             newSalary.setStartDate(new Date());
         if (existingSalary == null) //if salary already set up replace old
-            existingSalary = new Salary(empRep.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate());
+            existingSalary = new Salary(empRepository.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate());
         existingSalary.setAmount(newSalary.getAmount());
         existingSalary.setStartDate(newSalary.getStartDate());
-        salRep.save(existingSalary);
-        List<SalaryHistory> hist = salHistRep.findByEmployee_Id(id);
+        salRepository.save(existingSalary);
+        List<SalaryHistory> hist = salHistRepository.findByEmployee_Id(id);
         if (!hist.isEmpty())
             for (SalaryHistory histPoint : hist)
                 if (histPoint.getEndDate() == null)
                     histPoint.setEndDate(new Date());
 
-        salHistRep.save(new SalaryHistory(empRep.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate(), null));
+        salHistRepository.save(new SalaryHistory(empRepository.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate(), null));
         return new JsonReturn(newSalary.getAmount(), "", true);
     }
 
@@ -138,8 +136,8 @@ public class Controller {
     @DeleteMapping("/{id}")
     public JsonReturn deleteEmployee(@PathVariable Long id) {
         try {
-            empRep.findById(id).get();
-            empRep.deleteById(id);
+            empRepository.findById(id).get();
+            empRepository.deleteById(id);
             return new JsonReturn(null, "", true);
         } catch (Exception e) {
             return new JsonReturn(null, "", false);
