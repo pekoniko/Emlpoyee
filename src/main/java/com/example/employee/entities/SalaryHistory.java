@@ -2,6 +2,7 @@ package com.example.employee.entities;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -16,7 +17,7 @@ public class SalaryHistory {
     private Employee employee;
 
     @Column(name = "amount", nullable = false)
-    private double amount;
+    private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
@@ -29,7 +30,7 @@ public class SalaryHistory {
     public SalaryHistory() {
     }
 
-    public SalaryHistory(Employee employee, double amount, Date startDate, Date endDate) {
+    public SalaryHistory(Employee employee, BigDecimal amount, Date startDate, Date endDate) {
         this.employee = employee;
         this.amount = amount;
         this.startDate = startDate;
@@ -45,7 +46,7 @@ public class SalaryHistory {
         return employee;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -65,7 +66,7 @@ public class SalaryHistory {
         this.employee = employee;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

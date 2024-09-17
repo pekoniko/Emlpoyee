@@ -1,6 +1,8 @@
 package com.example.employee.entities;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class Salary {
 //    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
-    private double amount;
+    private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
@@ -29,7 +31,7 @@ public class Salary {
 
     public Salary(){}
 
-    public Salary(Employee employee, double amount, Date startDate){
+    public Salary(Employee employee, BigDecimal amount, Date startDate){
         this.employee = employee;
         this.amount = amount;
         this.startDate = startDate;
@@ -44,7 +46,7 @@ public class Salary {
         return employee;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -60,7 +62,7 @@ public class Salary {
         this.employee = employee;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
