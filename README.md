@@ -24,24 +24,24 @@
 
 POST:
 
-1) "localhost:8080/employees" - создаёт сотрудника с указанными в виде json файла именем "firstName", фамилией "lastName", должностью "position" и датой приёма на раюоту "hireDate" в формате yyyy-mm-dd.
+1) "localhost:8080/employee" - создаёт сотрудника с указанными в виде json файла именем "firstName", фамилией "lastName", должностью "position" и датой приёма на раюоту "hireDate" в формате yyyy-mm-dd.
 
 GET:
 
-2) "localhost:8080/employees/all" - показывает все записи из таблицы "employee".
-3) "localhost:8080/employees/{ID}" - показывает запись сотрудника с указанным {ID}.
-4) "localhost:8080/employees/{first_name}/{last_name}" -  показывает все записи сотрудников выбранным именем {first_name} и фамилией {last_name}.
-5) "localhost:8080/employees/{ID}/amount" - показывает зарплату сотрудника с указанным {ID}.
-6) "localhost:8080/employees/{ID}/date={dateString}" - показывает зарплату сотрудника указаннаую в таблице "salary_history" на указанную дату {dateString}. Дата указывается в формате yyyy-mm-dd.
+2) "localhost:8080/employee/all" - показывает все записи из таблицы "employee".
+3) "localhost:8080/employee/{ID}" - показывает запись сотрудника с указанным {ID}.
+4) "localhost:8080/employee/{first_name}/{last_name}" -  показывает все записи сотрудников выбранным именем {first_name} и фамилией {last_name}.
+5) "localhost:8080/employee/{ID}/amount" - показывает зарплату сотрудника с указанным {ID}.
+6) "localhost:8080/employee/{ID}/date={dateString}" - показывает зарплату сотрудника указаннаую в таблице "salary_history" на указанную дату {dateString}. Дата указывается в формате yyyy-mm-dd.
 
 PUT:
 
-7) "localhost:8080/employees/{ID}" - обновляет запись сотрудника с указанным {ID} на запись в виде json файла именем "firstName", фамилией "lastName", должностью "position" и датой приёма на раюоту "hireDate" в формате yyyy-mm-dd.
-8) "localhost:8080/employees/{ID}/amount={amount}" - менает запись о зарплате сотрудника с {ID} на значение {amount} в таблицах "salary" и "salary_history". В случае если сотруднику до этого не присваивалась зарплата, то создаётся новая запись.
+7) "localhost:8080/employee/{ID}" - обновляет запись сотрудника с указанным {ID} на запись в виде json файла именем "firstName", фамилией "lastName", должностью "position" и датой приёма на раюоту "hireDate" в формате yyyy-mm-dd.
+8) "localhost:8080/employee/{ID}/amount={amount}" - менает запись о зарплате сотрудника с {ID} на значение {amount} в таблицах "salary" и "salary_history". В случае если сотруднику до этого не присваивалась зарплата, то создаётся новая запись.
 
 DELETE:
 
-9) "localhost:8080/employees/{ID}" - удаляет запись о сотрдунике с указанным {ID}, а также все записи о его зарплате.
+9) "localhost:8080/employee/{ID}" - удаляет запись о сотрдунике с указанным {ID}, а также все записи о его зарплате.
 
 
 <b>Вывод</b>

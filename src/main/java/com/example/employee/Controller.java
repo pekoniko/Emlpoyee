@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@RequestMapping(value = "/employees")
+@RequestMapping(value = "/employee")
 public class Controller {
 
     @Autowired
