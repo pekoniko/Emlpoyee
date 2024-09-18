@@ -12,6 +12,8 @@ import com.example.employee.repositories.SalRepository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -65,19 +67,14 @@ public class EmployeeController {
     public JsonReturn getSalaryOnDate(@PathVariable Long id, @PathVariable String dateString) {
         if (empRepository.findById(id).isEmpty())
             return new JsonReturn(null, "No employee with that ID", false);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        Date date = null;
-        try {
-            date = sdf.parse(dateString);
-        } catch (ParseException e) {
-            return new JsonReturn(null, "Wrong date format", false);
-        }
+        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
+
         List<SalaryHistory> allHistory = salHistRepository.findByEmployee_Id(id);
         allHistory.sort(Comparator.comparing(SalaryHistory::getId));
-        if (date.before(allHistory.get(0).getStartDate())) // in case selected date before hiring
+        if (date.isBefore(allHistory.get(0).getStartDate())) // in case selected date before hiring
             return new JsonReturn(null, "Date is before first record", false);
         for (SalaryHistory oneObj : allHistory)
-            if (date.after(oneObj.getStartDate()) && (oneObj.getEndDate() != null || date.before(oneObj.getEndDate())))
+            if (date.isAfter(oneObj.getStartDate()) && (oneObj.getEndDate() != null || date.isBefore(oneObj.getEndDate())))
                 return new JsonReturn(oneObj.getAmount(), "", true);
         return new JsonReturn(null, "Salary not found on selected date", false);
     }
@@ -116,7 +113,7 @@ public class EmployeeController {
         if (existingSalary != null && newSalary.getAmount().equals(existingSalary.getAmount()))
             return new JsonReturn(null, newSalary.getAmount() + " is already set as amount!", false);
         if (newSalary.getStartDate() == null)
-            newSalary.setStartDate(new Date());
+            newSalary.setStartDate(LocalDate.now());
         if (existingSalary == null) //if salary already set up replace old
             existingSalary = new Salary(empRepository.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate());
         existingSalary.setAmount(newSalary.getAmount());
@@ -126,7 +123,7 @@ public class EmployeeController {
         if (!hist.isEmpty())
             for (SalaryHistory histPoint : hist)
                 if (histPoint.getEndDate() == null)
-                    histPoint.setEndDate(new Date());
+                    histPoint.setEndDate(LocalDate.now());
 
         salHistRepository.save(new SalaryHistory(empRepository.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate(), null));
         return new JsonReturn(newSalary.getAmount(), "", true);

@@ -3,6 +3,7 @@ package com.example.employee.entities;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -16,14 +17,13 @@ public class Salary {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", unique = true, nullable = false)
     private Employee employee;
-//    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date startDate;
+    private LocalDate startDate;
 
 //    @OneToMany
 //    @JoinColumn(name = "employee_id")
@@ -31,7 +31,7 @@ public class Salary {
 
     public Salary(){}
 
-    public Salary(Employee employee, BigDecimal amount, Date startDate){
+    public Salary(Employee employee, BigDecimal amount, LocalDate startDate){
         this.employee = employee;
         this.amount = amount;
         this.startDate = startDate;
@@ -50,7 +50,7 @@ public class Salary {
         return amount;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
@@ -66,7 +66,7 @@ public class Salary {
         this.amount = amount;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 }
