@@ -68,16 +68,26 @@ public class EmployeeController {
         if (empRepository.findById(id).isEmpty())
             return new JsonReturn(null, "No employee with that ID", false);
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
+        if (LocalDate.now().isBefore(date))
+            return new JsonReturn(null, "Can't search in future", false);
 
         List<SalaryHistory> allHistory = salHistRepository.findByEmployee_Id(id);
-        allHistory.sort(Comparator.comparing(SalaryHistory::getId));
+        allHistory.sort((o1, o2) -> {
+            if (o1.getStartDate().isAfter(o2.getStartDate())) return 1;
+            if (o2.getStartDate().isAfter(o1.getStartDate())) return -1;
+            return 0;
+        });
         if (date.isBefore(allHistory.get(0).getStartDate())) // in case selected date before hiring
             return new JsonReturn(null, "Date is before first record", false);
         for (SalaryHistory oneObj : allHistory)
-            if (date.isAfter(oneObj.getStartDate()) && (oneObj.getEndDate() != null || date.isBefore(oneObj.getEndDate())))
+            if (date.isAfter(oneObj.getStartDate()) || date.equals(oneObj.getStartDate()) &&
+                    (oneObj.getEndDate() == null ||
+                            date.isBefore(oneObj.getEndDate()) || date.equals(oneObj.getEndDate())))
                 return new JsonReturn(oneObj.getAmount(), "", true);
+
         return new JsonReturn(null, "Salary not found on selected date", false);
     }
+
 
     @GetMapping("/{id}/salary")
     public JsonReturn getSalary(@PathVariable Long id) {
@@ -115,9 +125,9 @@ public class EmployeeController {
         if (newSalary.getStartDate() == null)
             newSalary.setStartDate(LocalDate.now());
         if (existingSalary == null) //if salary already set up replace old
-            existingSalary = new Salary(empRepository.findById(id).get(), newSalary.getAmount(), newSalary.getStartDate());
+            existingSalary = new Salary(empRepository.findById(id).get(), null, null);
         existingSalary.setAmount(newSalary.getAmount());
-        existingSalary.setStartDate(newSalary.getStartDate());
+        existingSalary.setStartDate(newSalary.getStartDate().plusDays(1));
         salRepository.save(existingSalary);
         List<SalaryHistory> hist = salHistRepository.findByEmployee_Id(id);
         if (!hist.isEmpty())
