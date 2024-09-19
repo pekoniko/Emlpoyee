@@ -1,8 +1,6 @@
 package com.example.employee.entities;
-
 import jakarta.persistence.*;
-
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -23,7 +21,7 @@ public class Employee {
 
     @Column(name = "hire_date", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date hireDate;
+    private LocalDate hireDate;
 
     @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Salary salary;
@@ -34,7 +32,7 @@ public class Employee {
     public Employee() {
     }
 
-    public Employee(String firstName, String lastName, String position, Date hireDate) {
+    public Employee(String firstName, String lastName, String position, LocalDate hireDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
@@ -58,7 +56,7 @@ public class Employee {
         return position;
     }
 
-    public Date getHireDate() {
+    public LocalDate getHireDate() {
         return hireDate;
     }
 
@@ -78,7 +76,7 @@ public class Employee {
         this.position = position;
     }
 
-    public void setHireDate(Date hireDate) {
+    public void setHireDate(LocalDate hireDate) {
         this.hireDate = hireDate;
     }
 }
