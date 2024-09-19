@@ -62,8 +62,8 @@ public class EmployeeService {
         return new JsonReturn(Arrays.asList(employee.get()), "", true);
     }
 
-    public JsonReturn getEmployeeByNamesLogic(String firstsName, String lastName) {
-        List<Employee> employee = empRepository.findByFirstNameAndLastName(firstsName, lastName);
+    public JsonReturn getEmployeeByNamesLogic(String firstName, String lastName) {
+        List<Employee> employee = empRepository.findByFirstNameAndLastName(firstName, lastName);
         if (employee.isEmpty())
             return new JsonReturn(employee, "No employee with that name and last name", false);
         return new JsonReturn(employee, "", true);
@@ -137,19 +137,21 @@ public class EmployeeService {
         try {
             date = LocalDate.parse(newSalaryInfo.getStartDate());
             existingSalary.setStartDate(date.plusDays(1));
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
         }
         if (date == null)
             existingSalary.setStartDate(LocalDate.now());
         existingSalary.setAmount(newSalaryInfo.getAmount());
         salRepository.save(existingSalary);
 
-        List<SalaryHistory> hist = salHistRepository.findByEmployee_Id(id);
-        if (!hist.isEmpty())
-            for (SalaryHistory histPoint : hist)
-                if (histPoint.getEndDate() == null)
-                    histPoint.setEndDate(LocalDate.now());
-
+        List<SalaryHistory> salaryHistoryList = salHistRepository.findByEmployee_Id(id);
+        salaryHistoryList.sort((o1, o2) -> {
+            if (o1.getStartDate().isAfter(o2.getStartDate())) return 1;
+            if (o2.getStartDate().isAfter(o1.getStartDate())) return -1;
+            return 0;
+        });
+        if (!salaryHistoryList.isEmpty() && salaryHistoryList.get(salaryHistoryList.size() - 1).getEndDate() == null)
+            salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(LocalDate.now());
         salHistRepository.save(new SalaryHistory(empRepository.findById(id).get(), newSalaryInfo.getAmount(),
                 existingSalary.getStartDate(), null));
         return new JsonReturn(newSalaryInfo.getAmount(), "", true);
@@ -158,10 +160,9 @@ public class EmployeeService {
 
     public JsonReturn deleteEmployeeLogic(Long id) {
         try {
-            empRepository.findById(id).get();
             empRepository.deleteById(id);
             return new JsonReturn(null, "", true);
-        } catch (Exception e) {
+        } catch (Exception e) { //todo logger
             return new JsonReturn(null, "", false);
         }
     }

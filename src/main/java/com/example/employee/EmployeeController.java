@@ -2,14 +2,10 @@ package com.example.employee;
 
 import com.example.employee.dto.JsonEmployee;
 import com.example.employee.dto.JsonSalary;
-import com.example.employee.entities.Employee;
 import com.example.employee.dto.JsonReturn;
-import com.example.employee.entities.Salary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.example.employee.repositories.EmpRepository;
-import com.example.employee.repositories.SalHistRepository;
-import com.example.employee.repositories.SalRepository;
+
 
 @RestController
 @RequestMapping(value = "/employee")
@@ -34,9 +30,9 @@ public class EmployeeController {
     }
 
     @GetMapping("/")
-    public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firstsName,
+    public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firstName,
                                          @RequestParam(name = "lastName") String lastName) {
-        return service.getEmployeeByNamesLogic(firstsName, lastName);
+        return service.getEmployeeByNamesLogic(firstName, lastName);
     }
 
     @GetMapping("/{id}/date={dateString}")

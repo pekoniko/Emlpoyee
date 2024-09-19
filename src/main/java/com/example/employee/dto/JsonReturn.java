@@ -1,8 +1,10 @@
 package com.example.employee.dto;
 
+import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class JsonReturn {
     List<Object> result;
     String error;
@@ -18,18 +20,6 @@ public class JsonReturn {
         }
         this.error = error;
         this.success = success;
-    }
-
-    public List<Object> getResult() {
-        return result;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public boolean isSuccess() {
-        return success;
     }
 
 }
