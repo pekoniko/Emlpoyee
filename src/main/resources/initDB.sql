@@ -9,15 +9,15 @@ create TABLE IF NOT EXISTS employee
 );
 create TABLE IF NOT EXISTS salary
 (
-    ID  integer PRIMARY KEY,
-    employee_id  integer NOT NULL UNIQUE,
+    id  integer PRIMARY KEY,
+    employee_id  integer NOT NULL UNIQUE REFERENCES employee,
     amount  decimal(12,4)  NOT NULL,
     start_date DATE  NOT NULL
 );
 create TABLE IF NOT EXISTS salary_history
 (
-    ID  integer PRIMARY KEY,
-    employee_id  integer NOT NULL,
+    id  integer PRIMARY KEY,
+    employee_id  integer NOT NULL REFERENCES employee,
     amount  decimal(12,4)  NOT NULL,
     start_date DATE  NOT NULL,
     end_date DATE
