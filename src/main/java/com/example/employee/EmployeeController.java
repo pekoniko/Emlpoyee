@@ -35,7 +35,7 @@ public class EmployeeController {
         return service.getEmployeeByNamesLogic(firstName, lastName);
     }
 
-    @GetMapping("/{id}/date={dateString}")
+    @GetMapping("/{id}/salary/date={dateString}")
     public JsonReturn getSalaryOnDate(@PathVariable Long id, @PathVariable String dateString) {
         return service.getSalaryOnDateLogic(id, dateString);
     }
