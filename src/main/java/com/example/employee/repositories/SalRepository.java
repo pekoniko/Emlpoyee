@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SalRepository extends JpaRepository<Salary, Long> {
 
-    public Salary findByEmployeeId(long employeeId);
+    public Salary findByEmployeeId(Long employeeId);
 }

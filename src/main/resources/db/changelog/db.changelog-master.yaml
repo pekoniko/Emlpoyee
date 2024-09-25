@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: bigint
+                  type: int
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -36,14 +36,14 @@ databaseChangeLog:
             - tableName: salary
             - column:
                 name: id
-                type: bigint
+                type: int
                 autoIncrement: true
                 constraints:
                   primaryKey: true
                   nullable: false
             - column:
                 name: employee_id
-                type: varchar(50)
+                type: int
                 constraints:
                   unique: true
                   nullable: false
@@ -61,14 +61,14 @@ databaseChangeLog:
             - tableName: salary_history
             - column:
                 name: id
-                type: BIGINT
+                type: int
                 autoIncrement: true
                 constraints:
                   primaryKey: true
                   nullable: false
             - column:
                 name: employee_id
-                type: varchar(50)
+                type: int
                 constraints:
                   unique: true
                   nullable: false

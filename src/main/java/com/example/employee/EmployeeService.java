@@ -12,6 +12,7 @@ import com.example.employee.repositories.SalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -89,7 +90,7 @@ public class EmployeeService {
             if (date.isAfter(oneObj.getStartDate()) || date.equals(oneObj.getStartDate()) &&
                     (oneObj.getEndDate() == null ||
                             date.isBefore(oneObj.getEndDate()) || date.equals(oneObj.getEndDate())))
-                return new JsonReturn(oneObj.getAmount(), "", true); //todo check if there is no recursion
+                return new JsonReturn(oneObj.getAmount(), "", true);
 
         return new JsonReturn(null, "Salary not found on selected date", false);
     }
@@ -133,7 +134,7 @@ public class EmployeeService {
             return new JsonReturn(null, newSalaryInfo.getAmount() + " is already set as amount!", false);
 
         if (existingSalary == null) //if salary already set up replace old
-            existingSalary = new Salary(empRepository.findById(id).get(), null, null);
+            existingSalary = new Salary(id, null, null);
         LocalDate date = null;
         try {
             date = LocalDate.parse(newSalaryInfo.getStartDate());
@@ -153,7 +154,7 @@ public class EmployeeService {
         });
         if (!salaryHistoryList.isEmpty() && salaryHistoryList.get(salaryHistoryList.size() - 1).getEndDate() == null)
             salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(LocalDate.now());
-        salHistRepository.save(new SalaryHistory(empRepository.findById(id).get(), newSalaryInfo.getAmount(),
+        salHistRepository.save(new SalaryHistory(id, newSalaryInfo.getAmount(),
                 existingSalary.getStartDate(), null));
         return new JsonReturn(newSalaryInfo.getAmount(), "", true);
     }

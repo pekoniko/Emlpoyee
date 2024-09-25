@@ -17,9 +17,8 @@ public class Salary {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", unique = true, nullable = false)
-    private Employee employee;
+    @Column(name = "employee_id", nullable = false)
+    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -28,8 +27,8 @@ public class Salary {
     @Temporal(TemporalType.DATE)
     private LocalDate startDate;
 
-    public Salary(Employee employee, BigDecimal amount, LocalDate startDate) {
-        this.employee = employee;
+    public Salary(Long employeeId, BigDecimal amount, LocalDate startDate) {
+        this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = startDate;
     }

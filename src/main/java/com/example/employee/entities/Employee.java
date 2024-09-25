@@ -2,6 +2,8 @@ package com.example.employee.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,11 +30,6 @@ public class Employee {
     @Temporal(TemporalType.DATE)
     private LocalDate hireDate;
 
-    @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Salary salary;
-
-    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<SalaryHistory> salaryHistory;
 
     public Employee(String firstName, String lastName, String position, LocalDate hireDate) {
         this.firstName = firstName;

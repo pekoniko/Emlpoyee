@@ -18,9 +18,8 @@ public class SalaryHistory {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    @Column(name = "employee_id", nullable = false)
+    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -33,8 +32,8 @@ public class SalaryHistory {
     @Temporal(TemporalType.DATE)
     private LocalDate endDate;
 
-    public SalaryHistory(Employee employee, BigDecimal amount, LocalDate startDate, LocalDate endDate) {
-        this.employee = employee;
+    public SalaryHistory(Long employeeId, BigDecimal amount, LocalDate startDate, LocalDate endDate) {
+        this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = startDate;
         this.endDate = endDate;

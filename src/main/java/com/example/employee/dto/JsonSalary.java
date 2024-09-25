@@ -9,7 +9,7 @@ public @Data class JsonSalary {
     private BigDecimal amount;
     private String startDate;
     public JsonSalary(Salary salary){
-        this.employeeId = salary.getEmployee().getId().toString();
+        this.employeeId = salary.getEmployeeId().toString();
         this.amount = salary.getAmount();
         this.startDate = salary.getStartDate().toString();
     }
