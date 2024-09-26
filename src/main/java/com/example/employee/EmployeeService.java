@@ -12,6 +12,7 @@ import com.example.employee.repositories.SalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -124,7 +125,7 @@ public class EmployeeService {
         existingEmployee.get().setFirstName(employeeInfo.getFirstName());
         existingEmployee.get().setLastName(employeeInfo.getLastName());
         existingEmployee.get().setPosition(employeeInfo.getPosition());
-        existingEmployee.get().setHireDate(date);
+        existingEmployee.get().setHireDate(Date.valueOf(date));
         empRepository.save(existingEmployee.get());
         Map<String, JsonEmployee> result = getObjectMap(new JsonEmployee(existingEmployee.get()), "employee");
         return new JsonReturn<>(result, "", true);
@@ -161,7 +162,7 @@ public class EmployeeService {
         if (!salaryHistoryList.isEmpty() && salaryHistoryList.get(salaryHistoryList.size() - 1).getEndDate() == null)
             salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(LocalDate.now());
         salHistRepository.save(new SalaryHistory(id, newSalaryInfo.getAmount(),
-                existingSalary.getStartDate(), null));
+                Date.valueOf(existingSalary.getStartDate()), null));
         Map<String, String> result = getObjectMap(newSalaryInfo.getAmount().toString(), "amount");
         return new JsonReturn<>(result, "", true);
     }

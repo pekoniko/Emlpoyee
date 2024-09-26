@@ -3,9 +3,8 @@ package com.example.employee.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "employee")
@@ -28,13 +27,14 @@ public class Employee {
 
     @Column(name = "hire_date", nullable = false)
     @Temporal(TemporalType.DATE)
-    private LocalDate hireDate;
+    private Date hireDate;
 
 
     public Employee(String firstName, String lastName, String position, LocalDate hireDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
-        this.hireDate = hireDate;
+        this.hireDate = Date.valueOf(hireDate);
     }
+
 }

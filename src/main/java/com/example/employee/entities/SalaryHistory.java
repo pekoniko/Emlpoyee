@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 
 @Entity
@@ -26,16 +27,32 @@ public class SalaryHistory {
 
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
-    private LocalDate startDate;
+    private Date startDate;
 
     @Column(name = "end_date")
     @Temporal(TemporalType.DATE)
-    private LocalDate endDate;
+    private Date endDate;
 
-    public SalaryHistory(Long employeeId, BigDecimal amount, LocalDate startDate, LocalDate endDate) {
+    public SalaryHistory(Long employeeId, BigDecimal amount, Date startDate, Date endDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate.toLocalDate();
+    }
+
+    public LocalDate getStartDate() {
+        return startDate.toLocalDate();
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = Date.valueOf(startDate);
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = Date.valueOf(endDate);
     }
 }
