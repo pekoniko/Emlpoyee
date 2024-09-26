@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
-public @Data class JsonEmployee {
+public @Data class JsonEmployee extends Object{
     Long id;
     String firstName;
     String lastName;

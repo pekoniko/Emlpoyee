@@ -4,7 +4,7 @@ import com.example.employee.entities.Salary;
 import lombok.Data;
 import java.math.BigDecimal;
 
-public @Data class JsonSalary {
+public @Data class JsonSalary extends Object{
     private String employeeId;
     private BigDecimal amount;
     private String startDate;

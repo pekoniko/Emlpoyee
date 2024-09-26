@@ -1,23 +1,19 @@
 package com.example.employee.dto;
 
 import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
-public class JsonReturn {
-    List<Object> result;
+public class JsonReturn<T> {
+    Map<String, T> result;
     String error;
     boolean success;
 
-    public JsonReturn(Object result, String error, boolean success) {
-        if (result == null || result instanceof List<?>) {
-            this.result = (List<Object>) result;
-        } else {
-            var resultList = new ArrayList<Object>();
-            resultList.add(result);
-            this.result = resultList;
-        }
+    public JsonReturn(Map<String, T> result, String error, boolean success) {
+        this.result = result;
         this.error = error;
         this.success = success;
     }

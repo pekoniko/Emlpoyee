@@ -12,14 +12,10 @@ import com.example.employee.repositories.SalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EmployeeService {
@@ -34,49 +30,52 @@ public class EmployeeService {
     private SalHistRepository salHistRepository;
 
 
-    public JsonReturn checkEmployeeLogic(JsonEmployee employee) {
+    public JsonReturn<JsonEmployee> checkEmployeeLogic(JsonEmployee employee) {
         if (employee.getFirstName().isEmpty() || employee.getLastName().isEmpty() ||
                 employee.getPosition().isEmpty() || employee.getHireDate() == null)
-            return new JsonReturn(null, "Date not in format yyyy-mm-dd", false);
+            return new JsonReturn<>(null, "Date not in format yyyy-mm-dd", false);
         LocalDate date;
         try {
             date = LocalDate.parse(employee.getHireDate());
         } catch (DateTimeParseException e) {
-            return new JsonReturn(employee, "Data on employee not full", false);
-
+            return new JsonReturn<>(null, "Data on employee not full", false);
         }
         Employee newEmployee = new Employee(employee.getFirstName(), employee.getLastName(), employee.getPosition(), date);
         empRepository.save(newEmployee);
-        return new JsonReturn(employee, "", true);
+        JsonEmployee result = new JsonEmployee(newEmployee);
+        return new JsonReturn<>(getObjectMap(result, "employee"), "", true);
     }
 
-    public JsonReturn getAllLogic() {
+    public JsonReturn<List<JsonEmployee>> getAllLogic() {
         List<Employee> all = empRepository.findAll();
         if (all.isEmpty())
-            return new JsonReturn(all, "Employee list is empty", true);
-        return new JsonReturn(getJsonEmployeeList(all), "", true);
+            return new JsonReturn<>(null, "", true);
+        Map<String, List<JsonEmployee>> result = getObjectMap(getJsonEmployeeList(all), "employees");
+        return new JsonReturn<>(result, "", true);
     }
 
-    public JsonReturn getEmployeeByIdLogic(Long id) {
+    public JsonReturn<JsonEmployee> getEmployeeByIdLogic(Long id) {
         Optional<Employee> employee = empRepository.findById(id);
         if (employee.isEmpty())
-            return new JsonReturn(employee, "No employee with that id", false);
-        return new JsonReturn(getJsonEmployeeList(Arrays.asList(employee.get())), "", true);
+            return new JsonReturn<>(null, "No employee with that id", false);
+        Map<String, JsonEmployee> result = getObjectMap(new JsonEmployee(employee.get()),"employee");
+        return new JsonReturn<>(result, "", true);
     }
 
-    public JsonReturn getEmployeeByNamesLogic(String firstName, String lastName) {
+    public JsonReturn<List<JsonEmployee>> getEmployeeByNamesLogic(String firstName, String lastName) {
         List<Employee> employee = empRepository.findByFirstNameAndLastName(firstName, lastName);
         if (employee.isEmpty())
-            return new JsonReturn(employee, "No employee with that name and last name", false);
-        return new JsonReturn(getJsonEmployeeList(employee), "", true);
+            return new JsonReturn<>(null, "No employee with that name and last name", false);
+        Map<String, List<JsonEmployee>> result = getObjectMap(getJsonEmployeeList(employee), "employees");
+        return new JsonReturn<>(result, "", true);
     }
 
-    public JsonReturn getSalaryOnDateLogic(Long id, String dateString) {
+    public JsonReturn<String> getSalaryOnDateLogic(Long id, String dateString) {
         if (empRepository.findById(id).isEmpty())
-            return new JsonReturn(null, "No employee with that ID", false);
+            return new JsonReturn<>(null, "No employee with that ID", false);
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
         if (LocalDate.now().isBefore(date))
-            return new JsonReturn(null, "Can't search in future", false);
+            return new JsonReturn<>(null, "Can't search in future", false);
 
         List<SalaryHistory> allHistory = salHistRepository.findByEmployeeId(id);
         allHistory.sort((o1, o2) -> {
@@ -85,53 +84,60 @@ public class EmployeeService {
             return 0;
         });
         if (date.isBefore(allHistory.get(0).getStartDate())) // in case selected date before hiring
-            return new JsonReturn(null, "Date is before first record", false);
-        for (SalaryHistory oneObj : allHistory)
+            return new JsonReturn<>(null, "Date is before first record", false);
+        for (SalaryHistory oneObj : allHistory) {
             if (date.isAfter(oneObj.getStartDate()) || date.equals(oneObj.getStartDate()) &&
                     (oneObj.getEndDate() == null ||
-                            date.isBefore(oneObj.getEndDate()) || date.equals(oneObj.getEndDate())))
-                return new JsonReturn(oneObj.getAmount(), "", true);
+                            date.isBefore(oneObj.getEndDate()) || date.equals(oneObj.getEndDate()))) {
+                Map<String, String> result = getObjectMap(oneObj.getAmount().toString(), "amount");
+                return new JsonReturn<>(result, "", true);
+            }
+        }
 
-        return new JsonReturn(null, "Salary not found on selected date", false);
+        return new JsonReturn<>(null, "Salary not found on selected date", false);
     }
 
 
-    public JsonReturn getSalaryLogic(Long id) {
+    public JsonReturn<JsonSalary> getSalaryLogic(Long id) {
         if (empRepository.findById(id).isEmpty())
-            return new JsonReturn(null, "No employee with that ID", false);
+            return new JsonReturn<>(null, "No employee with that ID", false);
         Salary salary = salRepository.findByEmployeeId(id);
         if (salary == null) // in case selected date before hiring
-            return new JsonReturn(null, "Salary still wasn't set for that employee", false);
-        return new JsonReturn(salary.getAmount().toString(), "", true);
+            return new JsonReturn<>(null, "Salary still wasn't set for that employee", false);
+        Map<String, JsonSalary> result = getObjectMap(new JsonSalary(salary), "salary");
+        return new JsonReturn<>(result, "", true);
     }
 
-    public JsonReturn updateEmployeeLogic(Long id, JsonEmployee employeeInfo) {
-        Employee existingEmployee = empRepository.findById(id).get();
+    public JsonReturn<JsonEmployee> updateEmployeeLogic(Long id, JsonEmployee employeeInfo) {
+        Optional<Employee> existingEmployee = empRepository.findById(id);
+        if (existingEmployee.isEmpty())
+            return new JsonReturn<>(null, "No employee by that ID", false);
         if (employeeInfo.getFirstName().isEmpty() || employeeInfo.getLastName().isEmpty() ||
                 employeeInfo.getPosition().isEmpty() || employeeInfo.getHireDate() == null)
-            return new JsonReturn(null, "New data on employee not full", false);
+            return new JsonReturn<>(null, "New data on employee not full", false);
         LocalDate date;
         try {
             date = LocalDate.parse(employeeInfo.getHireDate());
         } catch (DateTimeParseException e) {
-            return new JsonReturn(employeeInfo, "Data on employee not full", false);
+            return new JsonReturn<>(null, "Data on employee not full", false);
         }
-        existingEmployee.setFirstName(employeeInfo.getFirstName());
-        existingEmployee.setLastName(employeeInfo.getLastName());
-        existingEmployee.setPosition(employeeInfo.getPosition());
-        existingEmployee.setHireDate(date);
-        empRepository.save(existingEmployee);
-        return new JsonReturn(employeeInfo, "", true);
+        existingEmployee.get().setFirstName(employeeInfo.getFirstName());
+        existingEmployee.get().setLastName(employeeInfo.getLastName());
+        existingEmployee.get().setPosition(employeeInfo.getPosition());
+        existingEmployee.get().setHireDate(date);
+        empRepository.save(existingEmployee.get());
+        Map<String, JsonEmployee> result = getObjectMap(new JsonEmployee(existingEmployee.get()), "employee");
+        return new JsonReturn<>(result, "", true);
     }
 
-    public JsonReturn updateAmountLogic(Long id, JsonSalary newSalaryInfo) {
+    public JsonReturn<String> updateAmountLogic(Long id, JsonSalary newSalaryInfo) {
         if (empRepository.findById(id).isEmpty())
-            return new JsonReturn(null, "Have no employee with this id", false);
+            return new JsonReturn<>(null, "Have no employee with this id", false);
         Salary existingSalary = salRepository.findByEmployeeId(id);
         if (newSalaryInfo.getAmount() == null)
-            return new JsonReturn(null, "No amount in salary specified ", false);
+            return new JsonReturn<>(null, "No amount in salary specified ", false);
         if (existingSalary != null && newSalaryInfo.getAmount().equals(existingSalary.getAmount()))
-            return new JsonReturn(null, newSalaryInfo.getAmount() + " is already set as amount!", false);
+            return new JsonReturn<>(null, newSalaryInfo.getAmount() + " is already set as amount!", false);
 
         if (existingSalary == null) //if salary already set up replace old
             existingSalary = new Salary(id, null, null);
@@ -156,16 +162,17 @@ public class EmployeeService {
             salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(LocalDate.now());
         salHistRepository.save(new SalaryHistory(id, newSalaryInfo.getAmount(),
                 existingSalary.getStartDate(), null));
-        return new JsonReturn(newSalaryInfo.getAmount(), "", true);
+        Map<String, String> result = getObjectMap(newSalaryInfo.getAmount().toString(), "amount");
+        return new JsonReturn<>(result, "", true);
     }
 
 
-    public JsonReturn deleteEmployeeLogic(Long id) {
+    public JsonReturn<String> deleteEmployeeLogic(Long id) {
         try {
             empRepository.deleteById(id);
-            return new JsonReturn(null, "", true);
+            return new JsonReturn<>(null, "", true);
         } catch (Exception e) { //todo logger
-            return new JsonReturn(null, "", false);
+            return new JsonReturn<>(null, "", false);
         }
     }
 
@@ -174,5 +181,11 @@ public class EmployeeService {
         for (Employee employee : employees)
             jsonExit.add(new JsonEmployee(employee));
         return jsonExit;
+    }
+
+    private <T> Map<String, T> getObjectMap(T obj, String listName) {
+        Map<String, T> result = new HashMap<>();
+        result.put(listName, obj);
+        return result;
     }
 }
