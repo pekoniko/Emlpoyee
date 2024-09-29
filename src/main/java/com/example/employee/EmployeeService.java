@@ -9,6 +9,7 @@ import com.example.employee.entities.SalaryHistory;
 import com.example.employee.repositories.EmpRepository;
 import com.example.employee.repositories.SalHistRepository;
 import com.example.employee.repositories.SalRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
+@Slf4j
 public class EmployeeService {
 
     @Autowired
@@ -59,7 +61,7 @@ public class EmployeeService {
         Optional<Employee> employee = empRepository.findById(id);
         if (employee.isEmpty())
             return new JsonReturn<>(null, "No employee with that id", false);
-        Map<String, JsonEmployee> result = getObjectMap(new JsonEmployee(employee.get()),"employee");
+        Map<String, JsonEmployee> result = getObjectMap(new JsonEmployee(employee.get()), "employee");
         return new JsonReturn<>(result, "", true);
     }
 
@@ -141,7 +143,7 @@ public class EmployeeService {
             return new JsonReturn<>(null, newSalaryInfo.getAmount() + " is already set as amount!", false);
 
         if (existingSalary == null) //if salary already set up replace old
-            existingSalary = new Salary(id, null, null);
+            existingSalary = new Salary();
         LocalDate date = null;
         try {
             date = LocalDate.parse(newSalaryInfo.getStartDate());
@@ -151,6 +153,7 @@ public class EmployeeService {
         if (date == null)
             existingSalary.setStartDate(LocalDate.now());
         existingSalary.setAmount(newSalaryInfo.getAmount());
+        existingSalary.setEmployeeId(id);
         salRepository.save(existingSalary);
 
         List<SalaryHistory> salaryHistoryList = salHistRepository.findByEmployeeId(id);
@@ -172,7 +175,8 @@ public class EmployeeService {
         try {
             empRepository.deleteById(id);
             return new JsonReturn<>(null, "", true);
-        } catch (Exception e) { //todo logger
+        } catch (Exception e) {
+            log.error("Error with deleting by ID - " + id + ". " + e);
             return new JsonReturn<>(null, "", false);
         }
     }

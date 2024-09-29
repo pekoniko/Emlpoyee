@@ -130,7 +130,7 @@ databaseChangeLog:
                   value: "testPos1 Liquid"
               - column:
                   name: hire_date
-                  value: 2024-01-05
+                  value: "2024-01-05"
         - insert:
             tableName: employee
             columns:
@@ -145,7 +145,7 @@ databaseChangeLog:
                   value: "testPos1 Liquid"
               - column:
                   name: hire_date
-                  value: 2024-01-05
+                  value: "2024-01-05"
       rollback:
         - delete:
             tableName: employee

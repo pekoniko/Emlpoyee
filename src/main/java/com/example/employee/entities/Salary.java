@@ -1,6 +1,7 @@
 package com.example.employee.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,13 +26,12 @@ public class Salary {
     private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private Date startDate;
 
-    public Salary(Long employeeId, BigDecimal amount, Date startDate) {
+    public Salary(Long employeeId, BigDecimal amount, LocalDate startDate) {
         this.employeeId = employeeId;
         this.amount = amount;
-        this.startDate = startDate;
+        this.startDate = Date.valueOf(startDate);
     }
 
     public LocalDate getStartDate() {

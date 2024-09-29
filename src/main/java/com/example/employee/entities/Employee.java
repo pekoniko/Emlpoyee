@@ -26,7 +26,6 @@ public class Employee {
     private String position;
 
     @Column(name = "hire_date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private Date hireDate;
 
 
