@@ -33,7 +33,7 @@ public class EmployeeService {
     private SalHistRepository salHistRepository;
 
 
-    public JsonReturn<JsonEmployee> checkEmployeeLogic(JsonEmployee employee) {
+    public JsonReturn<String> checkEmployeeLogic(JsonEmployee employee) {
         if (employee.getFirstName().isEmpty() || employee.getLastName().isEmpty() ||
                 employee.getPosition().isEmpty() || employee.getHireDate() == null)
             return new JsonReturn<>(null, "Date not in format yyyy-mm-dd", false);
@@ -45,8 +45,8 @@ public class EmployeeService {
         }
         Employee newEmployee = new Employee(employee.getFirstName(), employee.getLastName(), employee.getPosition(), date);
         empRepository.save(newEmployee);
-        JsonEmployee result = new JsonEmployee(newEmployee);
-        return new JsonReturn<>(getObjectMap(result, "employee"), "", true);
+        String result = newEmployee.getId().toString();
+        return new JsonReturn<>(getObjectMap(result, "employeeId"), "", true);
     }
 
     public JsonReturn<List<JsonEmployee>> getAllLogic() {
@@ -147,11 +147,11 @@ public class EmployeeService {
         LocalDate date = null;
         try {
             date = LocalDate.parse(newSalaryInfo.getStartDate());
-            existingSalary.setStartDate(date.plusDays(1));
         } catch (Exception ignored) {
         }
         if (date == null)
-            existingSalary.setStartDate(LocalDate.now());
+            date = LocalDate.now();
+        existingSalary.setStartDate(date);
         existingSalary.setAmount(newSalaryInfo.getAmount());
         existingSalary.setEmployeeId(id);
         salRepository.save(existingSalary);
@@ -163,7 +163,7 @@ public class EmployeeService {
             return 0;
         });
         if (!salaryHistoryList.isEmpty() && salaryHistoryList.get(salaryHistoryList.size() - 1).getEndDate() == null)
-            salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(LocalDate.now());
+            salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(date.minusDays(1));
         salHistRepository.save(new SalaryHistory(id, newSalaryInfo.getAmount(),
                 Date.valueOf(existingSalary.getStartDate()), null));
         Map<String, String> result = getObjectMap(newSalaryInfo.getAmount().toString(), "amount");
@@ -173,6 +173,9 @@ public class EmployeeService {
 
     public JsonReturn<String> deleteEmployeeLogic(Long id) {
         try {
+            salRepository.delete(salRepository.findByEmployeeId(id));
+            List<SalaryHistory> salaryHistory = salHistRepository.findByEmployeeId(id);
+            salHistRepository.deleteAll(salaryHistory);
             empRepository.deleteById(id);
             return new JsonReturn<>(null, "", true);
         } catch (Exception e) {

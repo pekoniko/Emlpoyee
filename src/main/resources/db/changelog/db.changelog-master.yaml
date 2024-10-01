@@ -47,6 +47,8 @@ databaseChangeLog:
                 constraints:
                   unique: true
                   nullable: false
+                  foreignKeyName: salary_employee_id
+                  references: employee(id)
             - column:
                 name: amount
                 type: decimal
@@ -70,8 +72,10 @@ databaseChangeLog:
                 name: employee_id
                 type: int
                 constraints:
-                  unique: true
+                  unique: false
                   nullable: false
+                  foreignKeyName: salary_history_employee_id
+                  references: employee(id)
             - column:
                 name: amount
                 type: decimal
@@ -87,32 +91,8 @@ databaseChangeLog:
                 type: date
                 constraints:
                   nullable: true
-  -  changeSet:
-       id:  2
-       author:  pekoniko
-       changes:
-         -  addForeignKeyConstraint:
-              baseColumnNames:  employee_id
-              baseTableName:  salary
-              constraintName:  salary_employee_id
-              onDelete:  CASCADE
-              onUpdate:  RESTRICT
-              referencedColumnNames:  id
-              referencedTableName:  employee
-  -  changeSet:
-       id:  3
-       author:  pekoniko
-       changes:
-         -  addForeignKeyConstraint:
-              baseColumnNames:  employee_id
-              baseTableName:  salary_history
-              constraintName:  salary_history_employee_id
-              onDelete:  CASCADE
-              onUpdate:  RESTRICT
-              referencedColumnNames:  id
-              referencedTableName:  employee
   - changeSet:
-      id: 4
+      id: 2
       author: pekoniko
       comment: "Create two employees and salary"
       changes:

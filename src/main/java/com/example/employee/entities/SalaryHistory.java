@@ -39,6 +39,8 @@ public class SalaryHistory {
     }
 
     public LocalDate getEndDate() {
+        if (endDate == null)
+            return null;
         return endDate.toLocalDate();
     }
 

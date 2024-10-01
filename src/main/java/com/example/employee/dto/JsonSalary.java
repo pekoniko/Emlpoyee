@@ -1,13 +1,16 @@
 package com.example.employee.dto;
 
 import com.example.employee.entities.Salary;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
+@AllArgsConstructor
 @NoArgsConstructor
-public @Data class JsonSalary extends Object{
+@Builder
+@Getter
+@Setter
+public class JsonSalary extends Object{
     private String employeeId;
     private BigDecimal amount;
     private String startDate;
@@ -16,5 +19,6 @@ public @Data class JsonSalary extends Object{
         this.amount = salary.getAmount();
         this.startDate = salary.getStartDate().toString();
     }
+
 
 }

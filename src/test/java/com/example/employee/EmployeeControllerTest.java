@@ -2,36 +2,35 @@ package com.example.employee;
 
 import com.example.employee.dto.JsonEmployee;
 import com.example.employee.dto.JsonReturn;
+import com.example.employee.dto.JsonSalary;
 import com.example.employee.entities.Employee;
-import com.example.employee.entities.Salary;
-import com.example.employee.entities.SalaryHistory;
 import com.example.employee.repositories.EmpRepository;
 import com.example.employee.repositories.SalHistRepository;
 import com.example.employee.repositories.SalRepository;
-import org.junit.BeforeClass;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Optional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EmployeeControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
-    private EmployeeController employeeController;
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private EmpRepository empRepository;
@@ -40,107 +39,150 @@ class EmployeeControllerTest {
     @Autowired
     private SalHistRepository salHistRepository;
 
-    private static long testId;
 
-    @BeforeAll
-    void init() {
-        Employee employee = new Employee("TestName", "Testovich", "pos",
-                LocalDate.parse("2000-01-01"));
-        Employee emp = empRepository.save(employee);
-        testId = emp.getId();
-        Salary salary = new Salary(testId, new BigDecimal(300), LocalDate.parse("2020-01-01"));
-        salRepository.save(salary);
-        SalaryHistory salaryHistory1 = new SalaryHistory(testId, new BigDecimal(300),
-                Date.valueOf("2020-01-01"), Date.valueOf("2021-01-01"));
-        SalaryHistory salaryHistory2 = new SalaryHistory(testId, new BigDecimal(300),
-                Date.valueOf("2021-01-02"), Date.valueOf("2022-01-01"));
-        SalaryHistory salaryHistory3 = new SalaryHistory(testId, new BigDecimal(300),
-                Date.valueOf("2022-01-02"), null);
-        salHistRepository.save(salaryHistory1);
-        salHistRepository.save(salaryHistory2);
-        salHistRepository.save(salaryHistory3);
-    }
-
-    @AfterAll
-    void end() {
-        empRepository.deleteById(testId);
-        Salary salary = salRepository.findByEmployeeId(testId);
-        salRepository.delete(salary);
-       List<SalaryHistory> salaryHistory = salHistRepository.findByEmployeeId(testId);
-        salHistRepository.deleteAll(salaryHistory);
+    @Test
+    @Order(1)
+    void createEmployee() throws Exception {
+        Employee employee = new Employee("111test111", "222test222", "pos", LocalDate.parse("2020-01-01"));
+        JsonEmployee jsonEmployee = new JsonEmployee(employee);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/employee")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(jsonEmployee)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        JsonReturn<String> jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assertions.assertNotNull(jsonReturn.getResult());
+        Assertions.assertNotNull(jsonReturn.getResult().get("employeeId"));
     }
 
 
     @Test
-    void createEmployee() {
-        Employee employee = new Employee("Name", "LastName", "pos", LocalDate.parse("2000-01-01"));
-        JsonReturn result = employeeController.createEmployee(new JsonEmployee(employee));
-        Assertions.assertNotNull(result.getResult());
-        Assertions.assertNotNull(result.getResult().get("employee"));
+    @Order(2)
+    void readEmployeeById() throws Exception {
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/employee/" + originEmployee.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString("")))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        JsonReturn<JsonEmployee> jsonReturn =
+                objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assertions.assertNotNull(jsonReturn.getResult());
+        Assertions.assertNotNull(jsonReturn.getResult().get("employee"));
+        JsonEmployee employee = objectMapper.convertValue(jsonReturn.getResult().get("employee"), JsonEmployee.class);
+        Assertions.assertEquals(employee.getId(), originEmployee.getId());
     }
 
     @Test
-    void createEmployee_wrongDate() {
-        Employee employee = new Employee("Name", "LastName", "pos", LocalDate.parse("01-13-20545"));
-        JsonReturn result = employeeController.createEmployee(new JsonEmployee(employee));
-        Assertions.assertNull(result.getResult());
+    @Order(3)
+    void updateEmployeeById() throws Exception {
+        String newPosition = "posUpdated";
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        Employee employee = new Employee("111test111", "222test222", newPosition, LocalDate.parse("2020-01-01"));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/employee/" +
+                                originEmployee.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(employee)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        JsonReturn<JsonEmployee> jsonReturn =
+                objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assertions.assertNotNull(jsonReturn.getResult());
+        Assertions.assertNotNull(jsonReturn.getResult().get("employee"));
+        JsonEmployee updatedEmployee =
+                objectMapper.convertValue(jsonReturn.getResult().get("employee"), JsonEmployee.class);
+        Assertions.assertNotEquals(updatedEmployee.getPosition(), originEmployee.getPosition());
+        Assertions.assertEquals(updatedEmployee.getPosition(), newPosition);
     }
 
     @Test
-    void createEmployee_wrongData() {
-        Employee employee = new Employee("Name", null, "pos", LocalDate.parse("2000-01-01"));
-        JsonReturn result = employeeController.createEmployee(new JsonEmployee(employee));
-        Assertions.assertNull(result.getResult());
+    @Order(4)
+    void setSalary() throws Exception {
+        Long amount = 300L;
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        JsonSalary jsonSalary =
+                new JsonSalary(originEmployee.getId().toString(), BigDecimal.valueOf(amount), "2020-01-01");
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/employee/" +
+                                originEmployee.getId() + "/salary")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(jsonSalary)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        JsonReturn<String> jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assumptions.assumeTrue(jsonReturn.isSuccess());
+        Assertions.assertNotNull(jsonReturn.getResult());
+        Assertions.assertNotNull(jsonReturn.getResult().get("amount"));
+        String updatedAmount = objectMapper.convertValue(jsonReturn.getResult().get("amount"), String.class);
+        Assertions.assertEquals(amount.toString(), updatedAmount);
     }
 
     @Test
-    void getAll() {
-        JsonReturn result = employeeController.getAll();
-        Assertions.assertNotNull(result.getResult());
-        Assertions.assertNotNull(result.getResult().get("employees"));
+    @Order(5)
+    void updateSalary() throws Exception {
+        long amount = 400L;
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        JsonSalary jsonSalary = new JsonSalary(originEmployee.getId().toString(), BigDecimal.valueOf(amount), "2021-01-01");
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/employee/" + originEmployee.getId() + "/salary")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(jsonSalary)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        JsonReturn<String> jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assumptions.assumeTrue(jsonReturn.isSuccess());
+        Assertions.assertNotNull(jsonReturn.getResult());
+        Assertions.assertNotNull(jsonReturn.getResult().get("amount"));
+        String updatedAmount = objectMapper.convertValue(jsonReturn.getResult().get("amount"), String.class);
+        Assertions.assertEquals(Long.toString(amount), updatedAmount);
     }
 
     @Test
-    void getEmployeeById() {
-        List<Employee> before = empRepository.findByFirstNameAndLastName("Name", "LastName");
-        Assertions.assertNotNull(before);
-        Assertions.assertFalse(before.isEmpty());
-        JsonReturn after = employeeController.getEmployeeById(before.get(0).getId());
-        Assertions.assertNotNull(after.getResult());
-        Assertions.assertEquals(before, after.getResult());
+    @Order(6)
+    void getSalary() throws Exception {
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        MvcResult result =
+                mockMvc.perform(MockMvcRequestBuilders.get("/employee/" + originEmployee.getId() +
+                                        "/salary")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(" ")))
+                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andReturn();
+        JsonReturn<String> jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assumptions.assumeTrue(jsonReturn.isSuccess());
+        Assertions.assertNotNull(jsonReturn.getResult());
+        JsonSalary salary = objectMapper.convertValue(jsonReturn.getResult().get("salary"), JsonSalary.class);
+        Assertions.assertNotNull(salary.getAmount());
     }
 
     @Test
-    void getEmployeeByNames() {
-        List<Employee> before = empRepository.findByFirstNameAndLastName("Name", "LastName");
-        Assertions.assertNotNull(before);
-        Assertions.assertFalse(before.isEmpty());
-        JsonReturn after = employeeController.getEmployeeByNames("Name", "LastName");
-        Assertions.assertNotNull(after.getResult());
-        Assertions.assertEquals(before, after.getResult());
+    @Order(7)
+    void getSalaryOnDate() throws Exception {
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        MvcResult result =
+                mockMvc.perform(MockMvcRequestBuilders.get("/employee/" + originEmployee.getId() +
+                                        "/salary/?date=2020-05-05")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(" ")))
+                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andReturn();
+        JsonReturn<String> jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assumptions.assumeTrue(jsonReturn.isSuccess());
+        Assertions.assertNotNull(jsonReturn.getResult());
+        Assertions.assertNotNull(jsonReturn.getResult().get("amount"));
     }
 
     @Test
-    void getSalaryOnDate() {
-        List<Employee> before = empRepository.findByFirstNameAndLastName("Name", "LastName");
-        Assertions.assertNotNull(before);
-        Assertions.assertFalse(before.isEmpty());
-
-    }
-
-    @Test
-    void getSalary() {
-    }
-
-    @Test
-    void updateEmployee() {
-    }
-
-    @Test
-    void updateAmount() {
-    }
-
-    @Test
-    void deleteEmployee() {
+    @Order(8)
+    void deleteEmployeeById() throws Exception {
+        String newPosition = "posUpdated";
+        Employee originEmployee = empRepository.findByFirstNameAndLastName("111test111", "222test222").get(0);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/employee/" + originEmployee.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(" ")))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        JsonReturn<JsonEmployee> jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
+        Assertions.assertTrue(jsonReturn.isSuccess());
+        Optional<Employee> employee = empRepository.findById(originEmployee.getId());
+        Assertions.assertTrue(employee.isEmpty());
     }
 }

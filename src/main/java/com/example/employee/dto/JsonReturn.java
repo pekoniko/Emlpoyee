@@ -1,11 +1,13 @@
 package com.example.employee.dto;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor
+@Builder
 @Getter
 public class JsonReturn<T> {
     Map<String, T> result;
