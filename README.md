@@ -28,11 +28,11 @@ POST:
 
 GET:
 
-2) "localhost:8080/employee/all" - показывает все записи из таблицы "employee".
+2) "localhost:8080/employee" - показывает все записи из таблицы "employee".
 3) "localhost:8080/employee/{ID}" - показывает запись сотрудника с указанным {ID}.
-4) "localhost:8080/employee/{first_name}/{last_name}" -  показывает все записи сотрудников выбранным именем {first_name} и фамилией {last_name}.
+4) "localhost:8080/employee/?firstName={first_name}&lastName={last_name}" -  показывает все записи сотрудников выбранным именем {first_name} и фамилией {last_name}.
 5) "localhost:8080/employee/{ID}/salary" - показывает зарплату сотрудника с указанным {ID}.
-6) "localhost:8080/employee/{ID}/salary/date={dateString}" - показывает зарплату сотрудника указаннаую в таблице "salary_history" на указанную дату {dateString}. Дата указывается в формате yyyy-mm-dd.
+6) "localhost:8080/employee/{ID}/salary/?date={dateString}" - показывает зарплату сотрудника указаннаую в таблице "salary_history" на указанную дату {dateString}. Дата указывается в формате yyyy-mm-dd.
 
 PUT:
 
