@@ -1,5 +1,6 @@
-package com.example.employee;
+package com.example.employee.controller;
 
+import com.example.employee.service.EmployeeService;
 import com.example.employee.dto.JsonEmployee;
 import com.example.employee.dto.JsonSalary;
 import com.example.employee.dto.JsonReturn;
@@ -8,26 +9,26 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping(value = "/employee")
+@RequiredArgsConstructor
 public class EmployeeController {
 
-    @Autowired
-    EmployeeService service;
+    private final EmployeeService service;
 
     @Operation(summary = "Create new employee",
-     description = "All parameters except id must be presented into enter json")
+            description = "All parameters except id must be presented into enter json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Employee created or got some predicted error",
                     content = {@Content(mediaType = "json",
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @PostMapping
     public JsonReturn createEmployee(@RequestBody JsonEmployee employee) {
-        return service.checkEmployeeLogic(employee);
+        return service.createEmployee(employee);
     }
 
     @Operation(summary = "Get all employees",
@@ -38,7 +39,7 @@ public class EmployeeController {
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping
     public JsonReturn getAll() {
-        return service.getAllLogic();
+        return service.getAll();
     }
 
     @Operation(summary = "Get employee by Id",
@@ -49,7 +50,7 @@ public class EmployeeController {
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping("/{id}")
     public JsonReturn getEmployeeById(@PathVariable Long id) {
-        return service.getEmployeeByIdLogic(id);
+        return service.getEmployeeById(id);
     }
 
     @Operation(summary = "Get employees by Names",
@@ -59,10 +60,10 @@ public class EmployeeController {
                     " last name or message that employee not exist",
                     content = {@Content(mediaType = "json",
                             schema = @Schema(implementation = JsonEmployee.class))})})
-    @GetMapping("/")
+    @GetMapping(params = {"firstName", "lastName"})
     public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firstName,
                                          @RequestParam(name = "lastName") String lastName) {
-        return service.getEmployeeByNamesLogic(firstName, lastName);
+        return service.getEmployeeByNames(firstName, lastName);
     }
 
     @Operation(summary = "Get employee salary on date",
@@ -72,9 +73,9 @@ public class EmployeeController {
                     "error message",
                     content = {@Content(mediaType = "json",
                             schema = @Schema(implementation = JsonEmployee.class))})})
-    @GetMapping("/{id}/salary/")
+    @GetMapping(value = "/{id}/salary", params = {"date"})
     public JsonReturn getSalaryOnDate(@PathVariable Long id, @RequestParam(name = "date") String dateString) {
-        return service.getSalaryOnDateLogic(id, dateString);
+        return service.getSalaryOnDate(id, dateString);
     }
 
     @Operation(summary = "Get employee salary",
@@ -83,9 +84,9 @@ public class EmployeeController {
             @ApiResponse(responseCode = "200", description = "Got employee salary or error message",
                     content = {@Content(mediaType = "json",
                             schema = @Schema(implementation = JsonEmployee.class))})})
-    @GetMapping("/{id}/salary")
+    @GetMapping(value = "/{id}/salary")
     public JsonReturn getSalary(@PathVariable Long id) {
-        return service.getSalaryLogic(id);
+        return service.getSalary(id);
     }
 
     @Operation(summary = "Put new info about employee",
@@ -96,7 +97,7 @@ public class EmployeeController {
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @PutMapping("/{id}")
     public JsonReturn updateEmployee(@PathVariable Long id, @RequestBody JsonEmployee employee) {
-        return service.updateEmployeeLogic(id, employee);
+        return service.updateEmployee(id, employee);
     }
 
     @Operation(summary = "Put new info about employee salary",
@@ -107,7 +108,7 @@ public class EmployeeController {
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @PutMapping("/{id}/salary")
     public JsonReturn updateAmount(@PathVariable Long id, @RequestBody JsonSalary newSalary) {
-        return service.updateAmountLogic(id, newSalary);
+        return service.updateAmount(id, newSalary);
     }
 
 
@@ -119,6 +120,6 @@ public class EmployeeController {
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @DeleteMapping("/{id}")
     public JsonReturn deleteEmployee(@PathVariable Long id) {
-        return service.deleteEmployeeLogic(id);
+        return service.deleteEmployeeById(id);
     }
 }

@@ -36,4 +36,11 @@ public class Employee {
         this.hireDate = Date.valueOf(hireDate);
     }
 
+    public LocalDate getHireDate() {
+        return hireDate.toLocalDate();
+    }
+
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = Date.valueOf(hireDate);
+    }
 }

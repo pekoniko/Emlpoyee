@@ -1,27 +1,19 @@
 package com.example.employee.dto;
 
 import com.example.employee.entities.Employee;
-import lombok.*;
-import org.springframework.stereotype.Component;
+import jakarta.validation.constraints.NotNull;
 
-@Component
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Getter
-@Setter
-public class JsonEmployee extends Object{
-    Long id;
-    String firstName;
-    String lastName;
-    String position;
-    String hireDate;
+import java.time.LocalDate;
+
+public record JsonEmployee(Long id,
+                           @NotNull String firstName,
+                           @NotNull String lastName,
+                           @NotNull String position,
+                           @NotNull LocalDate hireDate) {
 
     public JsonEmployee(Employee employee) {
-        this.id = employee.getId();
-        this.firstName = employee.getFirstName();
-        this.lastName = employee.getLastName();
-        this.hireDate = employee.getHireDate().toString();
-        this.position = employee.getPosition();
+        this(employee.getId(), employee.getFirstName(), employee.getLastName(),
+                employee.getPosition(), employee.getHireDate());
     }
+
 }

@@ -1,23 +1,20 @@
 package com.example.employee.dto;
 
 import com.example.employee.entities.Salary;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Getter
-@Setter
-public class JsonSalary extends Object{
-    private String employeeId;
-    private BigDecimal amount;
-    private String startDate;
-    public JsonSalary(Salary salary){
-        this.employeeId = salary.getEmployeeId().toString();
-        this.amount = salary.getAmount();
-        this.startDate = salary.getStartDate().toString();
+
+public record JsonSalary(@NotNull Long employeeId,
+                         @NotNull BigDecimal amount,
+                         @NotNull LocalDate startDate) {
+
+    public JsonSalary(Salary salary) {
+        this(salary.getEmployeeId(),
+                salary.getAmount(),
+                salary.getStartDate());
     }
 
 

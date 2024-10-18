@@ -3,13 +3,15 @@ databaseChangeLog:
   - changeSet:
       id: 1
       author: pekoniko
+      preConditions:
+        - onFail: MARK_RAN
       changes:
         - createTable:
             tableName: employee
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -32,23 +34,30 @@ databaseChangeLog:
               - column:
                   name: hire_date
                   type: date
+  - changeSet:
+      id: 2
+      author: pekoniko
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
         - createTable:
             - tableName: salary
             - column:
                 name: id
-                type: int
+                type: bigint
                 autoIncrement: true
                 constraints:
                   primaryKey: true
                   nullable: false
             - column:
                 name: employee_id
-                type: int
+                type: bigint
                 constraints:
                   unique: true
                   nullable: false
                   foreignKeyName: salary_employee_id
                   references: employee(id)
+                  deleteCascade:  true
             - column:
                 name: amount
                 type: decimal
@@ -59,23 +68,30 @@ databaseChangeLog:
                 type: date
                 constraints:
                   nullable: false
+  - changeSet:
+      id: 3
+      author: pekoniko
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
         - createTable:
             - tableName: salary_history
             - column:
                 name: id
-                type: int
+                type: bigint
                 autoIncrement: true
                 constraints:
                   primaryKey: true
                   nullable: false
             - column:
                 name: employee_id
-                type: int
+                type: bigint
                 constraints:
-                  unique: false
-                  nullable: false
-                  foreignKeyName: salary_history_employee_id
-                  references: employee(id)
+                    unique: false
+                    nullable: false
+                    foreignKeyName: salary_history_employee_id
+                    references: employee(id)
+                    deleteCascade:  true
             - column:
                 name: amount
                 type: decimal
@@ -92,8 +108,10 @@ databaseChangeLog:
                 constraints:
                   nullable: true
   - changeSet:
-      id: 2
+      id: 4
       author: pekoniko
+      preConditions:
+        - onFail: MARK_RAN
       comment: "Create two employees and salary"
       changes:
         - insert:
