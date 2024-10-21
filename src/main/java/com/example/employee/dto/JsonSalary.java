@@ -4,10 +4,11 @@ import com.example.employee.entities.Salary;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 
-public record JsonSalary(@NotNull Long employeeId,
+public record JsonSalary(@NotNull BigInteger employeeId,
                          @NotNull BigDecimal amount,
                          @NotNull LocalDate startDate) {
 

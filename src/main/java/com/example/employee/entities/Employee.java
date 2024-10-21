@@ -3,6 +3,7 @@ package com.example.employee.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private BigInteger id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

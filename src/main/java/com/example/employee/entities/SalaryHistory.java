@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 
@@ -17,10 +18,10 @@ import java.time.LocalDate;
 public class SalaryHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private BigInteger id;
 
     @Column(name = "employee_id", nullable = false)
-    private Long employeeId;
+    private BigInteger employeeId;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -31,7 +32,7 @@ public class SalaryHistory {
     @Column(name = "end_date")
     private Date endDate;
 
-    public SalaryHistory(Long employeeId, BigDecimal amount, Date startDate, Date endDate) {
+    public SalaryHistory(BigInteger employeeId, BigDecimal amount, Date startDate, Date endDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = startDate;

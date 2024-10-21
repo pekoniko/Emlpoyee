@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -30,9 +32,6 @@ public class EmployeeService {
 
     @Transactional
     public JsonReturn<JsonEmployee> createEmployee(JsonEmployee employee) {
-//        JsonReturn validationResult = validateJsonEmployee(employee);
-//        if (!validationResult.success())
-//            return validationResult;
         LocalDate date = employee.hireDate();
         Employee newEmployee = new Employee(employee.firstName(), employee.lastName(), employee.position(), date);
         employeeRepository.save(newEmployee);
@@ -108,9 +107,6 @@ public class EmployeeService {
         if (optionalEmployee.isEmpty()) {
             return makeUnsuccessfulReturn("No employee by that id");
         }
-//        JsonReturn jsonReturn = validateJsonEmployee(employeeInfo);
-//        if (!jsonReturn.success())
-//            return jsonReturn;
         LocalDate date = employeeInfo.hireDate();
         Employee existingEmployee = optionalEmployee.get();
         existingEmployee.setFirstName(employeeInfo.firstName());
@@ -142,19 +138,14 @@ public class EmployeeService {
         }
         existingSalary.setStartDate(date);
         existingSalary.setAmount(newSalaryInfo.amount());
-        existingSalary.setEmployeeId(id);
+        existingSalary.setEmployeeId(BigInteger.valueOf(id));
         salaryRepository.save(existingSalary);
-
-        List<SalaryHistory> salaryHistoryList = salaryHistoryRepository.findByEmployeeId(id);
-        salaryHistoryList.sort((o1, o2) -> {
-            if (o1.getStartDate().isAfter(o2.getStartDate())) return 1;
-            if (o2.getStartDate().isAfter(o1.getStartDate())) return -1;
-            return 0;
-        });
+        List<SalaryHistory> salaryHistoryList = salaryHistoryRepository.findByEmployeeId(id).stream().
+                sorted(Comparator.comparing(SalaryHistory::getStartDate)).toList();
         if (!salaryHistoryList.isEmpty() && salaryHistoryList.get(salaryHistoryList.size() - 1).getEndDate() == null) {
             salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(date.minusDays(1));
         }
-        salaryHistoryRepository.save(new SalaryHistory(id, newSalaryInfo.amount(),
+        salaryHistoryRepository.save(new SalaryHistory(BigInteger.valueOf(id), newSalaryInfo.amount(),
                 Date.valueOf(existingSalary.getStartDate()), null));
         return makeSuccessfulReturn("amount", newSalaryInfo.amount().toString());
     }
@@ -164,13 +155,6 @@ public class EmployeeService {
         employeeRepository.deleteById(id);
         return makeSuccessfulReturn(null, null);
     }
-
-//    private JsonReturn<String> validateJsonEmployee(JsonEmployee employee) {
-//        if (employee.position() == null || employee.hireDate() == null || employee.firstName() == null ||
-//                employee.lastName() == null)
-//            return makeUnsuccessfulReturn("Data not full");
-//        return makeSuccessfulReturn("Date", null);
-//    }
 
     private <T> JsonReturn<T> makeSuccessfulReturn(String listName, T data) {
         if (listName == null) {

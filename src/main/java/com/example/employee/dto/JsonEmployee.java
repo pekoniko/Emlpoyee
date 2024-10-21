@@ -3,9 +3,10 @@ package com.example.employee.dto;
 import com.example.employee.entities.Employee;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 
-public record JsonEmployee(Long id,
+public record JsonEmployee(BigInteger id,
                            @NotNull String firstName,
                            @NotNull String lastName,
                            @NotNull String position,

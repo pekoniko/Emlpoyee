@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 
@@ -17,10 +18,10 @@ import java.time.LocalDate;
 public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private BigInteger id;
 
     @Column(name = "employee_id", nullable = false)
-    private Long employeeId;
+    private BigInteger employeeId;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
@@ -28,7 +29,7 @@ public class Salary {
     @Column(name = "start_date", nullable = false)
     private Date startDate;
 
-    public Salary(Long employeeId, BigDecimal amount, LocalDate startDate) {
+    public Salary(BigInteger employeeId, BigDecimal amount, LocalDate startDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = Date.valueOf(startDate);
