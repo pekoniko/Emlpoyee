@@ -18,13 +18,13 @@ import java.time.LocalDate;
 public class SalaryHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private BigInteger id;
+    private Long id;
 
     @Column(name = "employee_id", nullable = false)
-    private BigInteger employeeId;
+    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
-    private BigDecimal amount;
+    private Double amount;
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;
@@ -32,7 +32,7 @@ public class SalaryHistory {
     @Column(name = "end_date")
     private Date endDate;
 
-    public SalaryHistory(BigInteger employeeId, BigDecimal amount, Date startDate, Date endDate) {
+    public SalaryHistory(Long employeeId, Double amount, Date startDate, Date endDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = startDate;

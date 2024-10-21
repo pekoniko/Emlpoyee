@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private BigInteger id;
+    private Long id;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

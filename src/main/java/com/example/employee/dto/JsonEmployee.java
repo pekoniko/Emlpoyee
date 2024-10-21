@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigInteger;
 import java.time.LocalDate;
 
-public record JsonEmployee(BigInteger id,
+public record JsonEmployee(Long id,
                            @NotNull String firstName,
                            @NotNull String lastName,
                            @NotNull String position,

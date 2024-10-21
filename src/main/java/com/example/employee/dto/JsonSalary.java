@@ -8,8 +8,8 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 
 
-public record JsonSalary(@NotNull BigInteger employeeId,
-                         @NotNull BigDecimal amount,
+public record JsonSalary(@NotNull Long employeeId,
+                         @NotNull Double amount,
                          @NotNull LocalDate startDate) {
 
     public JsonSalary(Salary salary) {

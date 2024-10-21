@@ -117,7 +117,7 @@ class EmployeeControllerTest {
 
     @Test
     void setSalary() throws Exception {
-        BigDecimal amount = new BigDecimal("300");
+        Double amount = 300.0;
         JsonSalary jsonSalary =
                 new JsonSalary(employeeGlobal.getId(), amount, LocalDate.parse("2020-01-01"));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
@@ -129,8 +129,8 @@ class EmployeeControllerTest {
 
     @Test
     void updateSalary() throws Exception {
-        BigDecimal newAmount = new BigDecimal("400");
-        salaryRepository.save(new Salary(employeeGlobal.getId(), new BigDecimal("300"), LocalDate.parse("2021-01-01")));
+        Double newAmount = 400.0;
+        salaryRepository.save(new Salary(employeeGlobal.getId(), 300.0, LocalDate.parse("2021-01-01")));
         JsonSalary jsonSalary = new JsonSalary(employeeGlobal.getId(), newAmount, LocalDate.parse("2021-01-01"));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
         MvcResult result = putRequest(request, objectMapper.writeValueAsString(jsonSalary));
@@ -141,7 +141,7 @@ class EmployeeControllerTest {
 
     @Test
     void getSalary() throws Exception {
-        BigDecimal salaryValue = BigDecimal.valueOf(300);
+        Double salaryValue = 300.0;
         salaryRepository.save(new Salary(employeeGlobal.getId(), salaryValue, LocalDate.parse("2021-01-01")));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
         MvcResult result = getRequest(request);
@@ -155,11 +155,11 @@ class EmployeeControllerTest {
 
     @Test
     void getSalaryOnDate() throws Exception {
-        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), BigDecimal.valueOf(300),
+        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), 300.0,
                 Date.valueOf("2020-01-01"), Date.valueOf("2020-12-31")));
-        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), BigDecimal.valueOf(400),
+        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), 400.0,
                 Date.valueOf("2021-01-01"), null));
-        salaryRepository.save(new Salary(employeeGlobal.getId(), BigDecimal.valueOf(400), LocalDate.parse("2021-01-01")));
+        salaryRepository.save(new Salary(employeeGlobal.getId(), 400.0, LocalDate.parse("2021-01-01")));
         String request = "/employee/" + employeeGlobal.getId() + "/salary?date=2020-05-05";
         MvcResult result = getRequest(request);
         var jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);

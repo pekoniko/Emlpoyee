@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="addEmployees" author="pekoniko">
+        <insert tableName="employee">
+            <column name="id" value="1"/>
+            <column name="first_name" value="First"/>
+            <column name="last_name" value="Name"/>
+            <column name="position" value="pos1"/>
+            <column name="hire_date" value="2020-01-01"/>
+        </insert>
+        <insert tableName="employee">
+            <column name="id" value="2"/>
+            <column name="first_name" value="Second"/>
+            <column name="last_name" value="Name"/>
+            <column name="position" value="pos2"/>
+            <column name="hire_date" value="2020-01-01"/>
+        </insert>
+    </changeSet>
+    <changeSet id="addFirstEmployeeSalary" author="pekoniko">
+        <insert tableName="salary">
+            <column name="employee_id" value="1"/>
+            <column name="amount" value="300"/>
+            <column name="start_date" value="2020-01-01"/>
+        </insert>
+        <insert tableName="salary_history">
+            <column name="employee_id" value="1"/>
+            <column name="amount" value="300"/>
+            <column name="start_date" value="2020-01-01"/>
+            <column name="end_date" value="2020-12-31"/>
+        </insert>
+        <insert tableName="salary_history">
+            <column name="employee_id" value="1"/>
+            <column name="amount" value="400"/>
+            <column name="start_date" value="2021-01-01"/>
+            <column name="end_date" value="2021-12-31"/>
+        </insert>
+    </changeSet>
+    <changeSet id="addSecondEmployeeSalary" author="pekoniko">
+        <insert tableName="salary">
+            <column name="employee_id" value="2"/>
+            <column name="amount" value="404"/>
+            <column name="start_date" value="2020-01-01"/>
+        </insert>
+        <insert tableName="salary_history">
+            <column name="employee_id" value="2"/>
+            <column name="amount" value="404"/>
+            <column name="start_date" value="2020-01-01"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

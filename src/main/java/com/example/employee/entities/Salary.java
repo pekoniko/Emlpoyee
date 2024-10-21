@@ -18,18 +18,18 @@ import java.time.LocalDate;
 public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private BigInteger id;
+    private Long id;
 
     @Column(name = "employee_id", nullable = false)
-    private BigInteger employeeId;
+    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
-    private BigDecimal amount;
+    private Double amount;
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;
 
-    public Salary(BigInteger employeeId, BigDecimal amount, LocalDate startDate) {
+    public Salary(Long employeeId, Double amount, LocalDate startDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = Date.valueOf(startDate);

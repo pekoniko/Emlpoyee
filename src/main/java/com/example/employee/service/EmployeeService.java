@@ -126,7 +126,7 @@ public class EmployeeService {
         if (newSalaryInfo.amount() == null) {
             return makeUnsuccessfulReturn("No amount in salary specified");
         }
-        if (existingSalary != null && newSalaryInfo.amount().equals(existingSalary.getAmount())) {
+        if (existingSalary != null && newSalaryInfo.amount().compareTo(existingSalary.getAmount()) == 0) {
             return makeUnsuccessfulReturn(newSalaryInfo.amount() + " is already set as amount!");
         }
         if (existingSalary == null) { //if salary already set up replace old
@@ -138,14 +138,14 @@ public class EmployeeService {
         }
         existingSalary.setStartDate(date);
         existingSalary.setAmount(newSalaryInfo.amount());
-        existingSalary.setEmployeeId(BigInteger.valueOf(id));
+        existingSalary.setEmployeeId(id);
         salaryRepository.save(existingSalary);
         List<SalaryHistory> salaryHistoryList = salaryHistoryRepository.findByEmployeeId(id).stream().
                 sorted(Comparator.comparing(SalaryHistory::getStartDate)).toList();
         if (!salaryHistoryList.isEmpty() && salaryHistoryList.get(salaryHistoryList.size() - 1).getEndDate() == null) {
             salaryHistoryList.get(salaryHistoryList.size() - 1).setEndDate(date.minusDays(1));
         }
-        salaryHistoryRepository.save(new SalaryHistory(BigInteger.valueOf(id), newSalaryInfo.amount(),
+        salaryHistoryRepository.save(new SalaryHistory(id, newSalaryInfo.amount(),
                 Date.valueOf(existingSalary.getStartDate()), null));
         return makeSuccessfulReturn("amount", newSalaryInfo.amount().toString());
     }
