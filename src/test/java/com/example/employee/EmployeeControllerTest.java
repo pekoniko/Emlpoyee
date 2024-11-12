@@ -117,32 +117,32 @@ class EmployeeControllerTest {
 
     @Test
     void setSalary() throws Exception {
-        Double amount = 300.0;
+        String amount = "300";
         JsonSalary jsonSalary =
-                new JsonSalary(employeeGlobal.getId(), amount, LocalDate.parse("2020-01-01"));
+                new JsonSalary(employeeGlobal.getId(), new BigDecimal(amount), LocalDate.parse("2020-01-01"));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
         MvcResult result = putRequest(request, objectMapper.writeValueAsString(jsonSalary));
         var jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
         Assertions.assertNotNull(jsonReturn.result().get("amount"));
-        Assertions.assertEquals(String.valueOf(amount), jsonReturn.result().get("amount"));
+        Assertions.assertEquals(amount, jsonReturn.result().get("amount"));
     }
 
     @Test
     void updateSalary() throws Exception {
-        Double newAmount = 400.0;
-        salaryRepository.save(new Salary(employeeGlobal.getId(), 300.0, LocalDate.parse("2021-01-01")));
-        JsonSalary jsonSalary = new JsonSalary(employeeGlobal.getId(), newAmount, LocalDate.parse("2021-01-01"));
+        String newAmount = "400";
+        salaryRepository.save(new Salary(employeeGlobal.getId(), new BigDecimal("300"), LocalDate.parse("2021-01-01")));
+        JsonSalary jsonSalary = new JsonSalary(employeeGlobal.getId(), new BigDecimal(newAmount), LocalDate.parse("2021-01-01"));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
         MvcResult result = putRequest(request, objectMapper.writeValueAsString(jsonSalary));
         var jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
         Assertions.assertNotNull(jsonReturn.result().get("amount"));
-        Assertions.assertEquals(jsonReturn.result().get("amount"), newAmount.toString());
+        Assertions.assertEquals(jsonReturn.result().get("amount"), newAmount);
     }
 
     @Test
     void getSalary() throws Exception {
-        Double salaryValue = 300.0;
-        salaryRepository.save(new Salary(employeeGlobal.getId(), salaryValue, LocalDate.parse("2021-01-01")));
+        String salaryValue = "300";
+        salaryRepository.save(new Salary(employeeGlobal.getId(), new BigDecimal(salaryValue), LocalDate.parse("2021-01-01")));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
         MvcResult result = getRequest(request);
         var jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);
@@ -150,16 +150,16 @@ class EmployeeControllerTest {
         Assertions.assertNotNull(jsonReturn.result());
         var salary = objectMapper.convertValue(jsonReturn.result().get("salary"), JsonSalary.class);
         Assertions.assertNotNull(salary.amount());
-        Assertions.assertEquals(salary.amount().toString(), salaryValue.toString());
+        Assertions.assertEquals(salary.amount().toString(), salaryValue);
     }
 
     @Test
     void getSalaryOnDate() throws Exception {
-        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), 300.0,
+        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), new BigDecimal("300") ,
                 Date.valueOf("2020-01-01"), Date.valueOf("2020-12-31")));
-        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), 400.0,
+        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), new BigDecimal("400"),
                 Date.valueOf("2021-01-01"), null));
-        salaryRepository.save(new Salary(employeeGlobal.getId(), 400.0, LocalDate.parse("2021-01-01")));
+        salaryRepository.save(new Salary(employeeGlobal.getId(), new BigDecimal("400"), LocalDate.parse("2021-01-01")));
         String request = "/employee/" + employeeGlobal.getId() + "/salary?date=2020-05-05";
         MvcResult result = getRequest(request);
         var jsonReturn = objectMapper.readValue(result.getResponse().getContentAsString(), JsonReturn.class);

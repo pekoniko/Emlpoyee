@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 
 public record JsonSalary(@NotNull Long employeeId,
-                         @NotNull Double amount,
+                         @NotNull BigDecimal amount,
                          @NotNull LocalDate startDate) {
 
     public JsonSalary(Salary salary) {

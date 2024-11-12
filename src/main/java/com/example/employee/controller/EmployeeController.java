@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
@@ -26,7 +27,7 @@ public class EmployeeController {
             description = "All parameters except id must be presented into enter json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Employee created or got some predicted error",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @PostMapping
     public JsonReturn createEmployee(@RequestBody JsonEmployee employee) {
@@ -37,7 +38,7 @@ public class EmployeeController {
             description = "Get list of all employees in DB")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got list of all employees",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping
     public JsonReturn getAll() {
@@ -48,7 +49,7 @@ public class EmployeeController {
             description = "Get employee info from table employee by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got employee or message that employee not exist",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping("/{id}")
     public JsonReturn getEmployeeById(@PathVariable Long id) {
@@ -60,7 +61,7 @@ public class EmployeeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got list of employees with selected first and" +
                     " last name or message that employee not exist",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping(params = {"firstName", "lastName"})
     public JsonReturn getEmployeeByNames(@RequestParam(name = "firstName") String firstName,
@@ -73,7 +74,7 @@ public class EmployeeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got salary of employee on chosen date or" +
                     "error message",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping(value = "/{id}/salary", params = {"date"})
     public JsonReturn getSalaryOnDate(@PathVariable Long id, @RequestParam(name = "date") String dateString) {
@@ -84,7 +85,7 @@ public class EmployeeController {
             description = "Get employee salary")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got employee salary or error message",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @GetMapping(value = "/{id}/salary")
     public JsonReturn getSalary(@PathVariable Long id) {
@@ -95,7 +96,7 @@ public class EmployeeController {
             description = "Update employee info in table employee")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got changed info about chosen employee or error message",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @PutMapping("/{id}")
     public JsonReturn updateEmployee(@PathVariable Long id, @RequestBody JsonEmployee employee) {
@@ -106,7 +107,7 @@ public class EmployeeController {
             description = "Update employee salary")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got new employee salary or error message",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @PutMapping("/{id}/salary")
     public JsonReturn updateAmount(@PathVariable Long id, @RequestBody JsonSalary newSalary) {
@@ -118,7 +119,7 @@ public class EmployeeController {
             description = "Delete employee by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Got confirmation or error message",
-                    content = {@Content(mediaType = "json",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = JsonEmployee.class))})})
     @DeleteMapping("/{id}")
     public JsonReturn deleteEmployee(@PathVariable Long id) {

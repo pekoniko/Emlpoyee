@@ -24,7 +24,7 @@ public class SalaryHistory {
     private Long employeeId;
 
     @Column(name = "amount", nullable = false)
-    private Double amount;
+    private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;
@@ -32,7 +32,7 @@ public class SalaryHistory {
     @Column(name = "end_date")
     private Date endDate;
 
-    public SalaryHistory(Long employeeId, Double amount, Date startDate, Date endDate) {
+    public SalaryHistory(Long employeeId, BigDecimal amount, Date startDate, Date endDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = startDate;

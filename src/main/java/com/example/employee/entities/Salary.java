@@ -24,12 +24,12 @@ public class Salary {
     private Long employeeId;
 
     @Column(name = "amount", nullable = false)
-    private Double amount;
+    private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
     private Date startDate;
 
-    public Salary(Long employeeId, Double amount, LocalDate startDate) {
+    public Salary(Long employeeId, BigDecimal amount, LocalDate startDate) {
         this.employeeId = employeeId;
         this.amount = amount;
         this.startDate = Date.valueOf(startDate);

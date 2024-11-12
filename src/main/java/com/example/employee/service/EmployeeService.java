@@ -42,7 +42,7 @@ public class EmployeeService {
     public JsonReturn<List<JsonEmployee>> getAll() {
         List<Employee> all = employeeRepository.findAll();
         if (all.isEmpty()) {
-            return makeSuccessfulReturn(null, null);
+            return makeUnsuccessfulReturn("No employees");
         }
         return makeSuccessfulReturn("employees", getJsonEmployeeList(all));
     }

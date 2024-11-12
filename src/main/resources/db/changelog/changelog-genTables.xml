@@ -32,7 +32,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
                 <constraints unique="true" nullable="false"
                              foreignKeyName="salary_employee_id" references="employee(id)" deleteCascade="true"/>
             </column>
-            <column name="amount" type="double">
+            <column name="amount" type="numeric(18,2)">
                 <constraints unique="false" nullable="false"/>
             </column>
             <column name="start_date" type="date">
@@ -50,7 +50,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
                              foreignKeyName="salary_history_employee_id" references="employee(id)"
                              deleteCascade="true"/>
             </column>
-            <column name="amount" type="double">
+            <column name="amount" type="numeric(18,2)">
                 <constraints unique="false" nullable="false"/>
             </column>
             <column name="start_date" type="date">
