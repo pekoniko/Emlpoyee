@@ -1,8 +1,7 @@
 package com.example.employee.service;
 
-import com.example.employee.dto.JsonEmployee;
-import com.example.employee.dto.JsonReturn;
-import com.example.employee.dto.JsonSalary;
+import com.example.employee.controller.YandexTranslateController;
+import com.example.employee.dto.*;
 import com.example.employee.entities.Employee;
 import com.example.employee.entities.Salary;
 import com.example.employee.entities.SalaryHistory;
@@ -11,15 +10,14 @@ import com.example.employee.repositories.SalaryHistoryRepository;
 import com.example.employee.repositories.SalaryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
@@ -29,6 +27,10 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final SalaryRepository salaryRepository;
     private final SalaryHistoryRepository salaryHistoryRepository;
+    private final YandexTranslateController yandexTranslateController;
+
+    @Autowired
+    private Environment env;
 
     @Transactional
     public JsonReturn<JsonEmployee> createEmployee(JsonEmployee employee) {
@@ -39,10 +41,11 @@ public class EmployeeService {
     }
 
     @Transactional
-    public JsonReturn<List<JsonEmployee>> getAll() {
-        List<Employee> all = employeeRepository.findAll();
+    public JsonReturn<List<JsonEmployee>> getAll(LinkedHashMap<String, String> params) {
+        List<Employee> all =
+                employeeRepository.findFiltered(params.get("firstName"), params.get("lastName"), params.get("position"));
         if (all.isEmpty()) {
-            return makeUnsuccessfulReturn("No employees");
+            return makeUnsuccessfulReturn("No employees with that parameters");
         }
         return makeSuccessfulReturn("employees", getJsonEmployeeList(all));
     }
@@ -57,12 +60,17 @@ public class EmployeeService {
     }
 
     @Transactional
-    public JsonReturn<List<JsonEmployee>> getEmployeeByNames(String firstName, String lastName) {
-        List<Employee> employee = employeeRepository.findByFirstNameAndLastName(firstName, lastName);
+    public JsonReturn<String> getTranslatedPosition(Long id, String language) {
+        Optional<Employee> employee = employeeRepository.findById(id);
         if (employee.isEmpty()) {
-            return makeUnsuccessfulReturn("No employee with that name and last name");
+            return makeUnsuccessfulReturn("No employee with that Id");
         }
-        return makeSuccessfulReturn("employees", getJsonEmployeeList(employee));
+        JsonTranslateRequest request = new JsonTranslateRequest(language, new String[]{employee.get().getPosition()});
+        JsonTranslateResult translateResult = yandexTranslateController.getTranslate(request);
+        if (Objects.nonNull(translateResult) && Objects.nonNull(translateResult.translations()))
+            return makeSuccessfulReturn("position", translateResult.translations().get(0).get("text"));
+        return makeUnsuccessfulReturn("Translation was unsuccessful");
+
     }
 
     @Transactional

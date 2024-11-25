@@ -12,4 +12,5 @@ public interface SalaryHistoryRepository extends JpaRepository<SalaryHistory, Lo
     public List<SalaryHistory> findByEmployeeId(Long id);
 
     public void deleteByEmployeeId(Long salaryInfo);
+
 }
