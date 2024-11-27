@@ -28,9 +28,6 @@ public class EmployeeService {
     private final SalaryHistoryRepository salaryHistoryRepository;
     private final YandexTranslateService translateService;
 
-    @Autowired
-    private Environment env;
-
     @Transactional
     public JsonReturn<JsonEmployee> createEmployee(JsonEmployee employee) {
         LocalDate date = employee.hireDate();

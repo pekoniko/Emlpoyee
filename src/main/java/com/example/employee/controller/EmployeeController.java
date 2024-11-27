@@ -212,8 +212,6 @@ public class EmployeeController {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        ObjectMapper map = new ObjectMapper();
         return new JsonReturn<>(null, errors.toString(), false);
-//        return errors;
     }
 }
