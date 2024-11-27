@@ -29,7 +29,6 @@ public class YandexTranslateController {
                             schema = @Schema(implementation = JsonTranslateResult.class))})})
     @PostMapping
     public JsonTranslateResult getTranslate(@RequestBody JsonTranslateRequest translationRequest) {
-
         return service.getTranslation(translationRequest);
     }
 

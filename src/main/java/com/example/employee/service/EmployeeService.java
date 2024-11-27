@@ -1,6 +1,5 @@
 package com.example.employee.service;
 
-import com.example.employee.controller.YandexTranslateController;
 import com.example.employee.dto.*;
 import com.example.employee.entities.Employee;
 import com.example.employee.entities.Salary;
@@ -27,7 +26,7 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final SalaryRepository salaryRepository;
     private final SalaryHistoryRepository salaryHistoryRepository;
-    private final YandexTranslateController yandexTranslateController;
+    private final YandexTranslateService translateService;
 
     @Autowired
     private Environment env;
@@ -68,7 +67,7 @@ public class EmployeeService {
             return makeUnsuccessfulReturn("No employee with that Id");
         }
         JsonTranslateRequest request = new JsonTranslateRequest(language, new String[]{employee.get().getPosition()});
-        JsonTranslateResult translateResult = yandexTranslateController.getTranslate(request);
+        JsonTranslateResult translateResult = translateService.getTranslation(request);
         if (Objects.nonNull(translateResult) && Objects.nonNull(translateResult.translations()))
             return makeSuccessfulReturn("position", translateResult.translations().get(0).get("text"));
         return makeUnsuccessfulReturn("Translation was unsuccessful");
@@ -176,14 +175,14 @@ public class EmployeeService {
         return makeSuccessfulReturn(null, null);
     }
 
-    private <T> JsonReturn<T> makeSuccessfulReturn(String listName, T data) {
+    public <T> JsonReturn<T> makeSuccessfulReturn(String listName, T data) {
         if (listName == null) {
             return new JsonReturn<>(null, "", true);
         }
         return new JsonReturn<>(Map.of(listName, data), "", true);
     }
 
-    private <T> JsonReturn<T> makeUnsuccessfulReturn(String errorMessage) {
+    public static  <T> JsonReturn<T> makeUnsuccessfulReturn(String errorMessage) {
         return new JsonReturn<>(null, errorMessage, true);
     }
 
