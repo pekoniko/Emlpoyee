@@ -1,9 +1,7 @@
 package com.example.employee.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.Arrays;
 
 //targetLanguageCode - result text language
 //texts - all texts to translate
@@ -11,12 +9,9 @@ import java.util.Arrays;
 @NoArgsConstructor
 @Data
 public class JsonTranslateRequest {
-    @NotNull
-    String targetLanguageCode;
-    @NotNull
-    String[] texts;
-    @NotNull
-    String folderId;
+    private String targetLanguageCode;
+    private String[] texts;
+    private String folderId;
 
     public JsonTranslateRequest(String targetLanguageCode, String[] texts) {
         this.targetLanguageCode = targetLanguageCode;

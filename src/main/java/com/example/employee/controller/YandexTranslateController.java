@@ -1,6 +1,5 @@
 package com.example.employee.controller;
 
-import com.example.employee.dto.JsonEmployee;
 import com.example.employee.dto.JsonTranslateRequest;
 import com.example.employee.dto.JsonTranslateResult;
 import com.example.employee.service.YandexTranslateService;

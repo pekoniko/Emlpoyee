@@ -115,12 +115,21 @@ public class EmployeeService {
         if (optionalEmployee.isEmpty()) {
             return makeUnsuccessfulReturn("No employee by that id");
         }
-        LocalDate date = employeeInfo.hireDate();
+
         Employee existingEmployee = optionalEmployee.get();
-        existingEmployee.setFirstName(employeeInfo.firstName());
-        existingEmployee.setLastName(employeeInfo.lastName());
-        existingEmployee.setPosition(employeeInfo.position());
-        existingEmployee.setHireDate(date);
+        if (employeeInfo.firstName() != null && employeeInfo.firstName().length() > 2) {
+            existingEmployee.setFirstName(employeeInfo.firstName());
+        }
+        if (employeeInfo.lastName() != null && employeeInfo.lastName().length() > 2) {
+            existingEmployee.setLastName(employeeInfo.lastName());
+        }
+        if (employeeInfo.position() != null && employeeInfo.position().length() > 2) {
+            existingEmployee.setPosition(employeeInfo.position());
+        }
+        if (employeeInfo.hireDate() != null) {
+            LocalDate date = employeeInfo.hireDate();
+            existingEmployee.setHireDate(date);
+        }
         employeeRepository.save(existingEmployee);
         return makeSuccessfulReturn("employee", new JsonEmployee(existingEmployee));
     }
@@ -131,9 +140,6 @@ public class EmployeeService {
             return makeUnsuccessfulReturn("Have no employee with this id");
         }
         Salary existingSalary = salaryRepository.findByEmployeeId(id);
-        if (newSalaryInfo.amount() == null) {
-            return makeUnsuccessfulReturn("No amount in salary specified");
-        }
         if (existingSalary != null && newSalaryInfo.amount().compareTo(existingSalary.getAmount()) == 0) {
             return makeUnsuccessfulReturn(newSalaryInfo.amount() + " is already set as amount!");
         }
@@ -160,6 +166,10 @@ public class EmployeeService {
 
     @Transactional
     public JsonReturn<String> deleteEmployeeById(Long id) {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee.isEmpty()) {
+            return makeUnsuccessfulReturn("No employee with that Id");
+        }
         employeeRepository.deleteById(id);
         return makeSuccessfulReturn(null, null);
     }

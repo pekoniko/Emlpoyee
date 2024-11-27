@@ -1,16 +1,17 @@
 package com.example.employee.dto;
 
 import com.example.employee.entities.Employee;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 
+
 public record JsonEmployee(Long id,
-                           @NotNull String firstName,
-                           @NotNull String lastName,
-                           @NotNull String position,
-                           @NotNull LocalDate hireDate) {
+                           @NotBlank(message = "First name can't be empty", groups = OnCreate.class) String firstName,
+                           @NotBlank(message = "Last name can't be empty", groups = OnCreate.class) String lastName,
+                           @NotBlank(message = "Position name can't be empty", groups = OnCreate.class) String position,
+                           @NotNull(groups = OnCreate.class) LocalDate hireDate) {
+    public interface OnCreate {}
 
     public JsonEmployee(Employee employee) {
         this(employee.getId(), employee.getFirstName(), employee.getLastName(),
