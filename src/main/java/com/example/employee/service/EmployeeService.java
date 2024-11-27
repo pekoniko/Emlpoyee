@@ -35,6 +35,8 @@ public class EmployeeService {
     @Transactional
     public JsonReturn<JsonEmployee> createEmployee(JsonEmployee employee) {
         LocalDate date = employee.hireDate();
+        if (!employeeRepository.findEmployee(employee.firstName() , employee.lastName(), employee.position(), date).isEmpty())
+            return makeUnsuccessfulReturn("That employee already exist");
         Employee newEmployee = new Employee(employee.firstName(), employee.lastName(), employee.position(), date);
         employeeRepository.save(newEmployee);
         return makeSuccessfulReturn("employee", new JsonEmployee(newEmployee));

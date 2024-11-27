@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -16,6 +17,15 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     public List<Employee> findByLastName(String lastName);
 
     public List<Employee> findByFirstNameAndLastName(String firstName, String lastName);
+
+    @Query("""
+            select a from Employee a where
+            (a.firstName = ?1)
+            and (a.lastName= ?2)
+            and (a.position = ?3)
+            and (a.hireDate = ?4)
+            """)
+    public List<Employee> findEmployee(String firstName, String lastName, String position, LocalDate hireDate);
 
     @Query("""
        select a from Employee a where
