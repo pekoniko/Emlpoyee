@@ -4,7 +4,6 @@ import com.example.employee.service.EmployeeService;
 import com.example.employee.dto.JsonEmployee;
 import com.example.employee.dto.JsonSalary;
 import com.example.employee.dto.JsonReturn;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,13 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,9 +61,9 @@ public class EmployeeController {
             )}
     )
     @GetMapping()
-    public JsonReturn getAll(@RequestParam(name = "firstName", required = false) String firstName,
-                             @RequestParam(name = "lastName", required = false) String lastName,
-                             @RequestParam(name = "position", required = false) String position
+    public JsonReturn getByFilter(@RequestParam(name = "firstName", required = false) String firstName,
+                                  @RequestParam(name = "lastName", required = false) String lastName,
+                                  @RequestParam(name = "position", required = false) String position
     ) {
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
         params.put("firstName", firstName);
@@ -88,7 +87,7 @@ public class EmployeeController {
     )
     @GetMapping("/{id}/position")
     public JsonReturn getTranslatedPosition(@PathVariable Long id,
-                                            @RequestParam(name = "language") String language
+                                            @RequestParam(name = "language") @Length(min = 2, max = 3) String language
     ) {
         return service.getTranslatedPosition(id, language);
     }
@@ -162,7 +161,7 @@ public class EmployeeController {
 
     )
     @PutMapping("/{id}")
-    public JsonReturn updateEmployee(@PathVariable Long id, @Validated @RequestBody JsonEmployee employee) {
+    public JsonReturn updateEmployee(@PathVariable Long id, @Valid @RequestBody JsonEmployee employee) {
         return service.updateEmployee(id, employee);
     }
 
@@ -180,7 +179,8 @@ public class EmployeeController {
             )}
     )
     @PutMapping("/{id}/salary")
-    public JsonReturn updateAmount(@PathVariable Long id, @Valid @RequestBody JsonSalary newSalary) {
+    @Valid
+    public JsonReturn updateAmount(@PathVariable Long id, @RequestBody JsonSalary newSalary) {
         return service.updateAmount(id, newSalary);
     }
 
@@ -204,8 +204,7 @@ public class EmployeeController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public JsonReturn handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
+    public JsonReturn<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
