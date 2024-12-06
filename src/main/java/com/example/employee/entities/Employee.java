@@ -3,7 +3,6 @@ package com.example.employee.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 
