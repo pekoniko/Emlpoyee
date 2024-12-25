@@ -6,7 +6,7 @@
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="createApiKeysTable" author="pekoniko">
         <createTable tableName="api_key">
-            <column name="key" type="varchar(1000)">
+            <column name="key" type="text">
                 <constraints primaryKey="true" unique="true" nullable="false"/>
             </column>
             <column name="api_time" type="timestamp">

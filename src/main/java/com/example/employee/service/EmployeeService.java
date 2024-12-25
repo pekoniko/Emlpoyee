@@ -56,15 +56,18 @@ public class EmployeeService {
     }
 
     @Transactional
-    public JsonReturn<String> getTranslatedPosition(Long id, String language) {
+    public JsonReturn<JsonEmployee> getTranslatedPosition(Long id, String language) {
         Optional<Employee> employee = employeeRepository.findById(id);
         if (employee.isEmpty()) {
             return makeUnsuccessfulReturn("No employee with that Id");
         }
-        JsonTranslateRequest request = new JsonTranslateRequest(language, new String[]{employee.get().getPosition()});
-        JsonTranslateResult translateResult = translateService.getTranslation(request);
-        if (Objects.nonNull(translateResult) && Objects.nonNull(translateResult.translations()))
-            return makeSuccessfulReturn("position", translateResult.translations().get(0).get("text"));
+        String translatedPosition = translateService.getTranslation(language, employee.get().getPosition());
+        if (Objects.nonNull(translatedPosition)) {
+            Employee clonedEmployee = new Employee(employee.get());
+            clonedEmployee.setPosition(translatedPosition);
+            JsonEmployee result = new JsonEmployee(clonedEmployee);
+            return makeSuccessfulReturn("employee", result);
+        }
         return makeUnsuccessfulReturn("Translation was unsuccessful");
 
     }
@@ -113,18 +116,17 @@ public class EmployeeService {
         }
 
         Employee existingEmployee = optionalEmployee.get();
-        if (employeeInfo.firstName() != null && employeeInfo.firstName().length() > 2) {
+        if (employeeInfo.firstName() != null && !employeeInfo.firstName().isEmpty()) {
             existingEmployee.setFirstName(employeeInfo.firstName());
         }
-        if (employeeInfo.lastName() != null && employeeInfo.lastName().length() > 2) {
+        if (employeeInfo.lastName() != null && !employeeInfo.lastName().isEmpty()) {
             existingEmployee.setLastName(employeeInfo.lastName());
         }
-        if (employeeInfo.position() != null && employeeInfo.position().length() > 2) {
+        if (employeeInfo.position() != null && !employeeInfo.position().isEmpty()) {
             existingEmployee.setPosition(employeeInfo.position());
         }
         if (employeeInfo.hireDate() != null) {
-            LocalDate date = employeeInfo.hireDate();
-            existingEmployee.setHireDate(date);
+            existingEmployee.setHireDate(employeeInfo.hireDate());
         }
         employeeRepository.save(existingEmployee);
         return makeSuccessfulReturn("employee", new JsonEmployee(existingEmployee));

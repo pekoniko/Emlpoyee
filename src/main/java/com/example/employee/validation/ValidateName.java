@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = {NameValidation.class})
 public @interface ValidateName {
 
-    String message() default "Invalid Name: Must be of 2 - 20 letters.";
+    String message() default "Invalid Name: Must be of 1 - 20 letters.";
 
     Class<?>[] groups() default {};
 

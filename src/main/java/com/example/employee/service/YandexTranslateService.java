@@ -5,9 +5,11 @@ import com.example.employee.dto.JsonTranslateRequest;
 import com.example.employee.dto.JsonTranslateResult;
 import com.example.employee.entities.ApiKey;
 import com.example.employee.repositories.ApiKeyRepository;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -15,53 +17,66 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class YandexTranslateService {
-    private Environment env;
-    private ApiKeyRepository apiKeyRepository;
+    private final ApiKeyRepository apiKeyRepository;
+    private final RestTemplate restTemplate;
+    private final static StringHttpMessageConverter CONVERTER = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+    @Value("${yandex.api.folder}")
+    private String apiFolder;
+    @Value("${yandex.api.translate.url}")
+    private String translateUrl;
+    @Value("${yandex.api.key}")
+    private String apiKey;
+    @Value("${yandex.api.token.url}")
+    private String tokenUrl;
 
-    public JsonTranslateResult getTranslation(JsonTranslateRequest translationRequest) {
-        RestTemplate restTemplate = new RestTemplate();
+    public String getTranslation(String language, String text) {
+        JsonTranslateRequest request = new JsonTranslateRequest(language, new String[]{text});
         restTemplate.getMessageConverters()
-                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+                .add(0, CONVERTER);
         HttpHeaders headers = new HttpHeaders();
         String actualKey = getActualKey();
         if (actualKey == null)
-            return null;
+            return null; //todo Exception
         headers.setBearerAuth(actualKey);
-        translationRequest.setFolderId(env.getProperty("yandex.api.folder"));
-        HttpEntity<String> entity = new HttpEntity<>(translationRequest.toString(), headers);
-
-        JsonTranslateResult result = restTemplate.postForObject(env.getProperty("yandex.api.translate.url"), entity, JsonTranslateResult.class);
-        if (Objects.nonNull(result) && Objects.nonNull(result.translations())) {
-            return result;
+        request.setFolderId(apiFolder);
+        ObjectMapper mapper = new ObjectMapper();
+        String requestBody;
+        try {
+            requestBody = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        JsonTranslateResult result = restTemplate.postForObject(translateUrl, entity, JsonTranslateResult.class);
+        if (Objects.nonNull(result) && Objects.nonNull(result.translations())) {
+            return result.translations().get(0).get("text");
+        }
+        return null; //todo Exception
     }
 
     private String getActualKey() {
-        List<ApiKey> apiKeyList = apiKeyRepository.findAll();
-        apiKeyList.sort(Comparator.comparing(ApiKey::getApiTime));
-        if (!apiKeyList.isEmpty()) {
-            return apiKeyList.get(apiKeyList.size() - 1).getKey();
-        }
-        return null;
+        return apiKeyRepository.findAll()
+                .stream()
+                .max(Comparator.comparing(ApiKey::getApiTime))
+                .map(ApiKey::getKey)
+                .orElse(null);
     }
 
+
     public JsonTranslateKeyResult getNewApiKey() {
-        RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters()
-                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+                .add(0, CONVERTER);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = "{\"yandexPassportOauthToken\":\"" + env.getProperty("yandex.api.key") + "\"}";
+        String requestBody = "{\"yandexPassportOauthToken\":\"" + apiKey + "\"}";
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-        JsonTranslateKeyResult result = restTemplate.postForObject(env.getProperty("yandex.api.token.url"), entity, JsonTranslateKeyResult.class);
+        JsonTranslateKeyResult result = restTemplate.postForObject(tokenUrl, entity, JsonTranslateKeyResult.class);
         if (Objects.nonNull(result) && Objects.nonNull(result.getIamToken())) {
             return result;
         }

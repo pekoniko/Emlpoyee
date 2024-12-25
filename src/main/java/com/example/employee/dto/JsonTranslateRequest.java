@@ -17,22 +17,4 @@ public class JsonTranslateRequest {
         this.targetLanguageCode = targetLanguageCode;
         this.texts = texts;
     }
-
-    @Override
-    public String toString() {
-        return "{\"targetLanguageCode\":\"" + targetLanguageCode + "\",\"texts\":" + textsToString() +
-                ",\"folderId\":\"" + folderId + "\"}";
-    }
-
-    private String textsToString() {
-        StringBuilder result = new StringBuilder("[\"");
-        for (int i = 0; i < texts.length; i++) {
-            String text = texts[i];
-            result.append(text).append("\"");
-            if (i != texts.length - 1)
-                result.append(",\"");
-        }
-        result.append("]");
-        return result.toString();
-    }
 }

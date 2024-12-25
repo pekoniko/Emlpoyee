@@ -1,9 +1,8 @@
-package com.example.employee;
+package com.example.employee.config;
 
 import com.example.employee.dto.JsonTranslateKeyResult;
 import com.example.employee.entities.ApiKey;
 import com.example.employee.repositories.ApiKeyRepository;
-import com.example.employee.repositories.EmployeeRepository;
 import com.example.employee.service.YandexTranslateService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableAsync
@@ -26,12 +25,15 @@ public class Tasks {
     private final ApiKeyRepository apiKeyRepository;
     private final YandexTranslateService yandexTranslateService;
 
-    @Scheduled(fixedRate = 43200000, initialDelay = 1000)
+    //12 hours
+    @Scheduled(timeUnit = TimeUnit.HOURS, fixedRate = 12, initialDelay = 0)
     public void scheduleFixedRateTask() {
-        List<ApiKey> apiKeyList = apiKeyRepository.findAll();
-        apiKeyList.sort(Comparator.comparing(ApiKey::getApiTime));
+        Timestamp keyExpirationDate = apiKeyRepository.findAll()
+                .stream()
+                .max(Comparator.comparing(ApiKey::getApiTime))
+                .map(ApiKey::getApiTime).orElse(null);
         Timestamp dateNow = new Timestamp(new Date().getTime());
-        if (apiKeyList.isEmpty() || dateNow.before(apiKeyList.get(apiKeyList.size() - 1).getApiTime())) {
+        if (keyExpirationDate == null || dateNow.after(keyExpirationDate)) {
             getKey();
         }
     }

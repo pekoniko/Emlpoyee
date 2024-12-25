@@ -19,7 +19,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
             and (a.position = ?3)
             and (a.hireDate = ?4)
             """)
-    List<Employee> findEmployee(String firstName, String lastName, String position, LocalDate hireDate);
+    List<Employee> findEmployee(String firstName, String lastName, String position, LocalDate hireDate); //todo search by method name!!
 
     @Query("""
             select a from Employee a where

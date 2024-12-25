@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class NameValidation implements ConstraintValidator<ValidateName, String> {
 
-    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z]{2,20}$");
+    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z]{1,20}$");
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
