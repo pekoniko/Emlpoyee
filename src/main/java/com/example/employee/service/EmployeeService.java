@@ -29,7 +29,7 @@ public class EmployeeService {
     @Transactional
     public JsonReturn<JsonEmployee> createEmployee(JsonEmployee employee) {
         LocalDate date = employee.hireDate();
-        if (!employeeRepository.findEmployee(employee.firstName() , employee.lastName(), employee.position(), date).isEmpty())
+        if (!employeeRepository.findFiltered(employee.firstName() , employee.lastName(), employee.position(), date).isEmpty())
             return makeUnsuccessfulReturn("That employee already exist");
         Employee newEmployee = new Employee(employee.firstName(), employee.lastName(), employee.position(), date);
         employeeRepository.save(newEmployee);
@@ -39,7 +39,7 @@ public class EmployeeService {
     @Transactional
     public JsonReturn<List<JsonEmployee>> getAll(LinkedHashMap<String, String> params) {
         List<Employee> all =
-                employeeRepository.findFiltered(params.get("firstName"), params.get("lastName"), params.get("position"));
+                employeeRepository.findFiltered(params.get("firstName"), params.get("lastName"), params.get("position"), null);
         if (all.isEmpty()) {
             return makeUnsuccessfulReturn("No employees with that parameters");
         }
