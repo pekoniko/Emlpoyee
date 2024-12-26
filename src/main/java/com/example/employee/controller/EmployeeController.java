@@ -161,7 +161,7 @@ public class EmployeeController {
 
     )
     @PutMapping("/{id}")
-    public JsonReturn updateEmployee(@PathVariable Long id, @Valid @RequestBody JsonEmployee employee) {
+    public JsonReturn updateEmployee(@PathVariable Long id, @Validated(JsonEmployee.OnUpdate.class) @RequestBody JsonEmployee employee) {
         return service.updateEmployee(id, employee);
     }
 
