@@ -77,6 +77,9 @@ public class EmployeeService {
         if (employeeRepository.findById(id).isEmpty()) {
             return makeUnsuccessfulReturn("No employee with that id");
         }
+        if (dateString==null){
+            getSalary(id);
+        }
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
         if (LocalDate.now().isBefore(date)) {
             return makeUnsuccessfulReturn("Can't search in future");
@@ -96,11 +99,7 @@ public class EmployeeService {
         return makeUnsuccessfulReturn("Salary not found on selected date");
     }
 
-    @Transactional
     public JsonReturn<JsonSalary> getSalary(Long id) {
-        if (employeeRepository.findById(id).isEmpty()) {
-            return makeUnsuccessfulReturn("No employee with that id");
-        }
         Salary salary = salaryRepository.findByEmployeeId(id);
         if (salary == null) { // in case selected date before hiring
             return makeUnsuccessfulReturn("Salary still wasn't set for that employee");

@@ -123,25 +123,8 @@ public class EmployeeController {
 
             )})
     @GetMapping(value = "/{id}/salary", params = {"date"})
-    public JsonReturn getSalaryOnDate(@PathVariable Long id, @RequestParam(name = "date") String dateString) {
+    public JsonReturn getSalaryOnDate(@PathVariable Long id, @RequestParam(name = "date", required = false) String dateString) {
         return service.getSalaryOnDate(id, dateString);
-    }
-
-
-    @Operation(summary = "Get employee salary",
-            description = "Get employee salary")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = JsonReturn.class))}),
-            @ApiResponse(responseCode = "400",
-                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = JsonReturn.class))}
-
-            )})
-    @GetMapping(value = "/{id}/salary")
-    public JsonReturn getSalary(@PathVariable Long id) {
-        return service.getSalary(id);
     }
 
 

@@ -156,7 +156,7 @@ class EmployeeControllerTest {
 
     @Test
     void getSalaryOnDate() throws Exception {
-        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), new BigDecimal("300") ,
+        salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), new BigDecimal("300"),
                 Date.valueOf("2020-01-01"), Date.valueOf("2020-12-31")));
         salaryHistoryRepository.save(new SalaryHistory(employeeGlobal.getId(), new BigDecimal("400"),
                 Date.valueOf("2021-01-01"), null));
@@ -170,7 +170,7 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void getTranslatedPosition() throws Exception{
+    void getTranslatedPosition() throws Exception {
         String request = "/employee/" + employeeGlobal.getId() + "/position?language=ru";
         MvcResult result = getRequest(request);
         var jsonReturn =
