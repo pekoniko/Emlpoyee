@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -46,7 +47,7 @@ class EmployeeControllerTest {
 
     @BeforeEach
     public void createTestEmployee() {
-        Employee employee = new Employee("111test111", "222test222", "pos", LocalDate.parse("2020-01-01"));
+        Employee employee = new Employee("Testyva", "Testovna", "position", LocalDate.parse("2020-01-01"));
         employeeRepository.save(employee);
         employeeGlobal = employee;
     }
@@ -59,7 +60,7 @@ class EmployeeControllerTest {
 
     @Test
     void createEmployee() throws Exception {
-        Employee employee = new Employee("111test111", "222test222", "pos", LocalDate.parse("2020-01-01"));
+        Employee employee = new Employee("Test", "Testovich", "position", LocalDate.parse("2020-01-01"));
         JsonEmployee jsonEmployee = new JsonEmployee(employee);
         String request = "/employee";
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(request)
@@ -77,7 +78,7 @@ class EmployeeControllerTest {
 
     @Test
     void deleteEmployeeById() throws Exception {
-        Employee employee = new Employee("111test111", "222test222", "pos", LocalDate.parse("2020-01-01"));
+        Employee employee = new Employee("Testyva", "Testovna", "position", LocalDate.parse("2020-01-01"));
         employeeRepository.save(employee);
         String request = "/employee/" + employee.getId();
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete(request))
@@ -103,8 +104,8 @@ class EmployeeControllerTest {
 
     @Test
     void updateEmployeeById() throws Exception {
-        String newPosition = "posUpdated";
-        Employee employee = new Employee("111test111", "222test222", newPosition, LocalDate.parse("2020-01-01"));
+        String newPosition = "position Updated";
+        Employee employee = new Employee("Testyva", "Testovna", newPosition, LocalDate.parse("2020-01-01"));
         String request = "/employee/" + employeeGlobal.getId();
         MvcResult result = putRequest(request, objectMapper.writeValueAsString(employee));
         var jsonReturn =
@@ -141,7 +142,7 @@ class EmployeeControllerTest {
 
     @Test
     void getSalary() throws Exception {
-        String salaryValue = "300";
+        String salaryValue = "300.0";
         salaryRepository.save(new Salary(employeeGlobal.getId(), new BigDecimal(salaryValue), LocalDate.parse("2021-01-01")));
         String request = "/employee/" + employeeGlobal.getId() + "/salary";
         MvcResult result = getRequest(request);
@@ -166,6 +167,18 @@ class EmployeeControllerTest {
         Assertions.assertTrue(jsonReturn.success());
         Assertions.assertNotNull(jsonReturn.result());
         Assertions.assertNotNull(jsonReturn.result().get("amount"));
+    }
+
+    @Test
+    void getTranslatedPosition() throws Exception{
+        String request = "/employee/" + employeeGlobal.getId() + "/position?language=ru";
+        MvcResult result = getRequest(request);
+        var jsonReturn =
+                objectMapper.readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8), JsonReturn.class);
+        Assertions.assertTrue(jsonReturn.success());
+        Assertions.assertNotNull(jsonReturn.result());
+        JsonEmployee employeeReturn = objectMapper.convertValue(jsonReturn.result().get("employee"), JsonEmployee.class);
+        Assertions.assertEquals(employeeReturn.position(), "позиция");
     }
 
     private MvcResult getRequest(String request) throws Exception {
