@@ -29,7 +29,7 @@ public class EmployeeService {
     @Transactional
     public JsonReturn<JsonEmployee> createEmployee(JsonEmployee employee) {
         LocalDate date = employee.hireDate();
-        if (!employeeRepository.findFiltered(employee.firstName() , employee.lastName(), employee.position(), date).isEmpty())
+        if (!employeeRepository.findFiltered(employee.firstName(), employee.lastName(), employee.position(), date).isEmpty())
             return makeUnsuccessfulReturn("That employee already exist");
         Employee newEmployee = new Employee(employee.firstName(), employee.lastName(), employee.position(), date);
         employeeRepository.save(newEmployee);
@@ -61,14 +61,19 @@ public class EmployeeService {
         if (employee.isEmpty()) {
             return makeUnsuccessfulReturn("No employee with that Id");
         }
-        String translatedPosition = translateService.getTranslation(language, employee.get().getPosition());
+        String translatedPosition;
+        try {
+            translatedPosition = translateService.getTranslation(language, employee.get().getPosition());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if (Objects.nonNull(translatedPosition)) {
             Employee clonedEmployee = new Employee(employee.get());
             clonedEmployee.setPosition(translatedPosition);
             JsonEmployee result = new JsonEmployee(clonedEmployee);
             return makeSuccessfulReturn("employee", result);
         }
-        return makeUnsuccessfulReturn("Translation was unsuccessful");
+        return makeUnsuccessfulReturn("Translation was unsuccessful.");
 
     }
 
@@ -77,8 +82,8 @@ public class EmployeeService {
         if (employeeRepository.findById(id).isEmpty()) {
             return makeUnsuccessfulReturn("No employee with that id");
         }
-        if (dateString==null){
-            getSalary(id);
+        if (dateString == null) {
+            return getSalary(id);
         }
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
         if (LocalDate.now().isBefore(date)) {
@@ -99,12 +104,12 @@ public class EmployeeService {
         return makeUnsuccessfulReturn("Salary not found on selected date");
     }
 
-    public JsonReturn<JsonSalary> getSalary(Long id) {
+    public JsonReturn<String> getSalary(Long id) {
         Salary salary = salaryRepository.findByEmployeeId(id);
         if (salary == null) { // in case selected date before hiring
             return makeUnsuccessfulReturn("Salary still wasn't set for that employee");
         }
-        return makeSuccessfulReturn("salary", new JsonSalary(salary));
+        return makeSuccessfulReturn("salary", salary.getAmount().toString());
     }
 
     @Transactional
@@ -178,7 +183,7 @@ public class EmployeeService {
         return new JsonReturn<>(Map.of(listName, data), "", true);
     }
 
-    public static  <T> JsonReturn<T> makeUnsuccessfulReturn(String errorMessage) {
+    public static <T> JsonReturn<T> makeUnsuccessfulReturn(String errorMessage) {
         return new JsonReturn<>(null, errorMessage, true);
     }
 

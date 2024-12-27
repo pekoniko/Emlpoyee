@@ -1,5 +1,6 @@
 package com.example.employee.controller;
 
+import com.example.employee.dto.JsonReturn;
 import com.example.employee.dto.JsonTranslateKeyResult;
 import com.example.employee.dto.JsonTranslateRequest;
 import com.example.employee.dto.JsonTranslateResult;
@@ -22,17 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class YandexTranslateController {
     private final YandexTranslateService service;
 
-//    @Operation(summary = "Get translation",
-//            description = "Get texts translation using yandex api")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Get translation on chosen language " +
-//                    "using yandex translation  api",
-//                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-//                            schema = @Schema(implementation = JsonTranslateResult.class))})})
-//    @PostMapping
-//    public JsonTranslateResult getTranslate(@RequestBody JsonTranslateRequest translationRequest) {
-////        return service.getTranslation(translationRequest); todo
-//    }
+    @Operation(summary = "Get translation",
+            description = "Get texts translation using yandex api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get translation on chosen language " +
+                    "using yandex translation  api",
+                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = JsonReturn.class))})})
+    @PostMapping
+    public JsonReturn<String> getTranslate(@RequestBody JsonTranslateRequest translationRequest) {
+        return service.getTranslationRequest(translationRequest);
+    }
 
 
     @Operation(summary = "Get temporal yandex translate api key",

@@ -1,5 +1,6 @@
 package com.example.employee.service;
 
+import com.example.employee.dto.JsonReturn;
 import com.example.employee.dto.JsonTranslateKeyResult;
 import com.example.employee.dto.JsonTranslateRequest;
 import com.example.employee.dto.JsonTranslateResult;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -35,14 +37,27 @@ public class YandexTranslateService {
     @Value("${yandex.api.token.url}")
     private String tokenUrl;
 
-    public String getTranslation(String language, String text) {
+    public JsonReturn<String> getTranslationRequest(JsonTranslateRequest translationRequest) {
+        String translation;
+        try {
+            translation = getTranslation(translationRequest.getTargetLanguageCode(), translationRequest.getTexts()[0]);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (translation == null) {
+            makeUnsuccessfulReturn("Translation failed");
+        }
+        return makeSuccessfulReturn("Translation", translation);
+    }
+
+    public String getTranslation(String language, String text) throws Exception {
         JsonTranslateRequest request = new JsonTranslateRequest(language, new String[]{text});
         restTemplate.getMessageConverters()
                 .add(0, CONVERTER);
         HttpHeaders headers = new HttpHeaders();
         String actualKey = getActualKey();
         if (actualKey == null)
-            return null; //todo Exception
+            throw new Exception("Yandex translation API have no key in DB.");
         headers.setBearerAuth(actualKey);
         request.setFolderId(apiFolder);
         ObjectMapper mapper = new ObjectMapper();
@@ -57,7 +72,7 @@ public class YandexTranslateService {
         if (Objects.nonNull(result) && Objects.nonNull(result.translations())) {
             return result.translations().get(0).get("text");
         }
-        return null; //todo Exception
+        throw new Exception("Yandex translation request goes wrong.");
     }
 
     private String getActualKey() {
@@ -81,6 +96,17 @@ public class YandexTranslateService {
             return result;
         }
         return null;
+    }
+
+    public <T> JsonReturn<T> makeSuccessfulReturn(String listName, T data) {
+        if (listName == null) {
+            return new JsonReturn<>(null, "", true);
+        }
+        return new JsonReturn<>(Map.of(listName, data), "", true);
+    }
+
+    public static <T> JsonReturn<T> makeUnsuccessfulReturn(String errorMessage) {
+        return new JsonReturn<>(null, errorMessage, true);
     }
 
 }
