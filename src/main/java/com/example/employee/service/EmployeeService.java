@@ -61,12 +61,8 @@ public class EmployeeService {
         if (employee.isEmpty()) {
             return makeUnsuccessfulReturn("No employee with that Id");
         }
-        String translatedPosition;
-        try {
-            translatedPosition = translateService.getTranslation(language, employee.get().getPosition());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        String translatedPosition = translateService.getTranslation(language, employee.get().getPosition());
+
         if (Objects.nonNull(translatedPosition)) {
             Employee clonedEmployee = new Employee(employee.get());
             clonedEmployee.setPosition(translatedPosition);

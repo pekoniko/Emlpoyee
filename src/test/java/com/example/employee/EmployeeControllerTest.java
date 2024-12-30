@@ -9,9 +9,7 @@ import com.example.employee.entities.SalaryHistory;
 import com.example.employee.repositories.EmployeeRepository;
 import com.example.employee.repositories.SalaryHistoryRepository;
 import com.example.employee.repositories.SalaryRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.AfterClass;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,7 +21,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;

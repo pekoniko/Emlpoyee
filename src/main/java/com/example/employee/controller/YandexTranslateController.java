@@ -3,7 +3,6 @@ package com.example.employee.controller;
 import com.example.employee.dto.JsonReturn;
 import com.example.employee.dto.JsonTranslateKeyResult;
 import com.example.employee.dto.JsonTranslateRequest;
-import com.example.employee.dto.JsonTranslateResult;
 import com.example.employee.service.YandexTranslateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -50,14 +50,12 @@ public class YandexTranslateService {
         return makeSuccessfulReturn("Translation", translation);
     }
 
-    public String getTranslation(String language, String text) throws Exception {
+    public String getTranslation(String language, String text) {
         JsonTranslateRequest request = new JsonTranslateRequest(language, new String[]{text});
         restTemplate.getMessageConverters()
                 .add(0, CONVERTER);
         HttpHeaders headers = new HttpHeaders();
         String actualKey = getActualKey();
-        if (actualKey == null)
-            throw new Exception("Yandex translation API have no key in DB.");
         headers.setBearerAuth(actualKey);
         request.setFolderId(apiFolder);
         ObjectMapper mapper = new ObjectMapper();
@@ -72,7 +70,7 @@ public class YandexTranslateService {
         if (Objects.nonNull(result) && Objects.nonNull(result.translations())) {
             return result.translations().get(0).get("text");
         }
-        throw new Exception("Yandex translation request goes wrong.");
+        throw new RuntimeException("Yandex translation request goes wrong.");
     }
 
     private String getActualKey() {

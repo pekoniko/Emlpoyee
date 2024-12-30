@@ -25,15 +25,13 @@ public class Tasks {
     private final ApiKeyRepository apiKeyRepository;
     private final YandexTranslateService yandexTranslateService;
 
-    //12 hours
     @Scheduled(timeUnit = TimeUnit.HOURS, fixedRate = 12, initialDelay = 0)
     public void scheduleFixedRateTask() {
         Timestamp keyExpirationDate = apiKeyRepository.findAll()
                 .stream()
-                .max(Comparator.comparing(ApiKey::getApiTime))
-                .map(ApiKey::getApiTime).orElse(null);
-        Timestamp dateNow = new Timestamp(new Date().getTime());
-        if (keyExpirationDate == null || dateNow.after(keyExpirationDate)) {
+                .map(ApiKey::getApiTime)
+                .max(Comparator.comparing(Timestamp::getTime)).orElse(null);
+        if (keyExpirationDate == null || LocalDateTime.now().isAfter(keyExpirationDate.toLocalDateTime())) {
             getKey();
         }
     }
