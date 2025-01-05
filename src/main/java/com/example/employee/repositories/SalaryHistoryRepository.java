@@ -7,9 +7,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SalHistRep extends JpaRepository<SalaryHistory, Long> {
+public interface SalaryHistoryRepository extends JpaRepository<SalaryHistory, Long> {
 
-    public List<SalaryHistory> findByEmployee_Id(Long id);
+    public List<SalaryHistory> findByEmployeeId(Long id);
 
-    public void deleteByEmployee_Id(Long salaryInfo);
+    public void deleteByEmployeeId(Long salaryInfo);
+
 }

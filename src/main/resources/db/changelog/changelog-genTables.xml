@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="createEmployeeTable" author="pekoniko">
+        <createTable tableName="employee">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="varchar(50)">
+                <constraints unique="false" nullable="false"/>
+            </column>
+            <column name="last_name" type="varchar(50)">
+                <constraints unique="false" nullable="false"/>
+            </column>
+            <column name="position" type="varchar(50)">
+                <constraints unique="false" nullable="false"/>
+            </column>
+            <column name="hire_date" type="date">
+                <constraints unique="false" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="createSalaryTable" author="pekoniko">
+        <createTable tableName="salary">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="employee_id" type="bigint">
+                <constraints unique="true" nullable="false"
+                             foreignKeyName="salary_employee_id" references="employee(id)" deleteCascade="true"/>
+            </column>
+            <column name="amount" type="numeric(18,2)">
+                <constraints unique="false" nullable="false"/>
+            </column>
+            <column name="start_date" type="date">
+                <constraints unique="false" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="createSalaryHistoryTable" author="pekoniko">
+        <createTable tableName="salary_history">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="employee_id" type="bigint">
+                <constraints unique="false" nullable="false"
+                             foreignKeyName="salary_history_employee_id" references="employee(id)"
+                             deleteCascade="true"/>
+            </column>
+            <column name="amount" type="numeric(18,2)">
+                <constraints unique="false" nullable="false"/>
+            </column>
+            <column name="start_date" type="date">
+                <constraints unique="false" nullable="false"/>
+            </column>
+            <column name="end_date" type="date">
+                <constraints unique="false" nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

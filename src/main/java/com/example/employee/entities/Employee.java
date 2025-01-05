@@ -1,12 +1,16 @@
 package com.example.employee.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.Date;
-import java.util.List;
+import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "employee")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,63 +26,29 @@ public class Employee {
     private String position;
 
     @Column(name = "hire_date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private Date hireDate;
 
-    @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Salary salary;
 
-    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<SalaryHistory> salaryHistory;
-
-    public Employee() {
-    }
-
-    public Employee(String firstName, String lastName, String position, Date hireDate) {
+    public Employee(String firstName, String lastName, String position, LocalDate hireDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
-        this.hireDate = hireDate;
+        this.hireDate = Date.valueOf(hireDate);
     }
 
-    //getters and setters
-    public Long getId() {
-        return id;
+    public Employee(Employee employee) {
+        this.id = employee.id;
+        this.firstName = employee.firstName;
+        this.lastName = employee.lastName;
+        this.position = employee.position;
+        this.hireDate = employee.hireDate;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public LocalDate getHireDate() {
+        return hireDate.toLocalDate();
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public Date getHireDate() {
-        return hireDate;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public void setHireDate(Date hireDate) {
-        this.hireDate = hireDate;
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = Date.valueOf(hireDate);
     }
 }

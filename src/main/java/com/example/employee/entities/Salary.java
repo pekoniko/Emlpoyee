@@ -1,70 +1,45 @@
 package com.example.employee.entities;
 
 import jakarta.persistence.*;
-import java.util.Date;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "salary")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", unique = true, nullable = false)
-    private Employee employee;
-//    private Long employeeId;
+    @Column(name = "employee_id", nullable = false)
+    private Long employeeId;
 
     @Column(name = "amount", nullable = false)
-    private double amount;
+    private BigDecimal amount;
 
     @Column(name = "start_date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private Date startDate;
 
-//    @OneToMany
-//    @JoinColumn(name = "employee_id")
-//    private List<SalaryHistory> salaryHistory;
-
-    public Salary(){}
-
-    public Salary(Employee employee, double amount, Date startDate){
-        this.employee = employee;
+    public Salary(Long employeeId, BigDecimal amount, LocalDate startDate) {
+        this.employeeId = employeeId;
         this.amount = amount;
-        this.startDate = startDate;
+        this.startDate = Date.valueOf(startDate);
     }
 
-    //getters and setters
-    public Long getId() {
-        return id;
+    public LocalDate getStartDate() {
+        return startDate.toLocalDate();
     }
 
-    public Employee getEmployeeId() {
-        return employee;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setEmployeeId(Employee employeeId) {
-        this.employee = employee;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = Date.valueOf(startDate);
     }
 }
